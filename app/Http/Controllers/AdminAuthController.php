@@ -11,9 +11,9 @@ class AdminAuthController extends Controller
     {
         $key = env('ADMIN_SESSION_KEY', 'admin_authenticated');
         if ($request->session()->get($key)) {
-            return redirect()->route('admin.dashboard');
+            return redirect()->route('admin.pages.dashboard');
         }
-        return view('admin.login');
+        return view('admin.pages.login');
     }
 
     public function login(Request $request)

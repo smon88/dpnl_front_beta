@@ -1,0 +1,218 @@
+body  {
+    height: 100dvh;
+}
+.topbar {
+    background: rgba(255, 255, 255, 0.04);
+    box-shadow: var(--shadow);
+    padding: 21px;
+}
+.topbar-logout {
+    background-color: #364b58;
+    box-shadow: var(--shadow);
+    padding: 3px 6px;;
+    border-radius: 6px;
+}
+.topbar-logout a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+}
+
+.data-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.focus, .history-data {
+    display: inline-flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    height: fit-content;
+    padding: 6px;
+    flex: 1;
+}
+.history-data {
+    padding: 6px 0px 6px 0px;
+}
+.cc, .logo {
+    gap: 6px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding: 6px 1vw;
+}
+
+.focus-icon {
+    width: 6%;
+    align-items: center;
+    display: flex;
+}
+.focus-icon span{
+   font-size: x-large;
+}
+
+.history-data-icon {
+    width: fit-content;
+    align-items: center;
+    display: flex;
+    padding: 3px;
+    background: #292a2d;
+    border-radius: 100%;
+}
+.history-data-icon {
+    width: 12%;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    padding: 6px;
+    background: #292a2d;
+    margin: 0px 6px;
+    border-radius: 100%;
+}
+.history-data-icon i{
+   font-size: x-large;
+   color: var(--green);
+}
+
+.value-container {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row;
+    /* align-items: center; */
+}
+
+.value-container.cc-data {
+    width: 100%;
+}
+.cc-number {
+   justify-content: center;
+}
+.cc-holder {
+   justify-content: center;
+}
+.cvv-value, .exp-value {
+    display: flex;
+    width: 100%;
+}
+
+.cvv-value {
+    justify-content: end;
+}
+
+.exp-value {
+    justify-content: start;
+}
+
+b.value-label, span.value {
+    font-size: larger;
+}
+
+.logo-pass, .logo-user {
+    justify-content: center;
+}
+
+#modalCCHistoryBox, #modalLogoHistoryBox, #modalDinaHistoryBox, #modalOtpHistoryBox {
+    padding: 6px 0px 6px 0px;
+    justify-content: space-around;
+    background: rgb(26 27 30);
+}
+
+#modalOtpHistoryBox {
+    gap: 3vw;
+}
+#modalOtpHistoryBox div .value-container, 
+#modalDinaHistoryBox div .value-container {
+    flex: 1;
+    justify-content: center;
+}
+
+#modalOtherHistoryBox .value-container {
+    flex: 1;
+    flex-wrap: wrap;
+    background: rgb(26 27 30);
+    justify-content: center;
+}
+
+#modalOtherHistoryBox {
+    margin: 10px 0 30px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgb(26 27 30);
+    padding: 21px 12px;
+    font-size: 12px;
+    overflow: auto;
+    white-space: pre-wrap;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    word-break: break-word;
+    justify-content: center;
+}
+
+
+.dinamic-value, .otp-value {
+    font-size: large;
+    text-emphasis: "➖";
+    text-emphasis-position: under;
+    letter-spacing: 6px;
+}
+
+.common-label {
+    font-size: large;
+}
+
+.common-value {
+    font-size: larger;
+    text-align: center;
+}
+
+
+.cc{
+  display: grid;
+  gap: 12px;
+  width: 100%;
+  max-width: 520px; /* opcional, se ve más pro */
+}
+
+.value-container{
+  width: 100%;
+  padding: 6px 9px;
+  border-radius: 12px;
+}
+
+.value-label{
+  font-size: 12px;
+  opacity: .7;
+  margin-right: 6px;
+}
+
+.value{
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  word-break: break-word;
+}
+
+/* Nombre y tarjeta: full ancho */
+.cc-holder,
+.cc-number{
+  grid-column: 1 / -1;
+}
+
+/* CVV y EXP: 2 columnas */
+.cc-data{
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+/* que las “cajitas” internas se vean iguales */
+.cc-data > div{
+  padding: 0px 6px 0px 6px;
+  border-radius: 12px;
+}
+
+/* responsive: en pantallas muy pequeñas, baja a 1 columna */

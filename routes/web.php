@@ -22,7 +22,8 @@ Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admi
 // ADMIN dashboard protegido por sesión
 Route::middleware(['admin.session'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
-
+    Route::get('/admin/profile', [AdminDashboardController::class, 'profile'])->name('admin.profile');
+    Route::get('/admin/traffic', [AdminDashboardController::class, 'traffic'])->name('admin.traffic');
     // token para socket admin (lo usa el dashboard)
     Route::get('/admin/socket-token', [AdminSocketTokenController::class, 'issue'])->name('admin.socket.token');
 });

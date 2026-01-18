@@ -1,24 +1,26 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Login</title>
+  <title>Devil Panel</title>
   <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
-  @vite(['resources/css/app.css','resources/js/app.js'])
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 </head>
 
 <body>
   <div class="shell">
+    <div class="login-logo">
+      <H1>Devil Panel's</H1>
+    </div>
     <div class="card">
       <div class="cardHeader">
         <div class="brand">
-          <h1>Acceso Admin</h1>
-          <span class="pill">Panel Seguro</span>
+          <h1>Bienvenido!</h1>
+          <span class="pill">Pre beta</span>
         </div>
-        <p class="sub">Ingresa la clave para abrir el dashboard.</p>
-
         @if ($errors->any())
           <div class="alert">
             <b>Error</b>
@@ -36,15 +38,16 @@
           @csrf
 
           <div>
-            <label>Clave</label>
-            <input
-              type="password"
-              name="password"
-              required
-              class="input"
-              placeholder="********"
-              autofocus
-            />
+            <label>Usuario</label>
+            <input type="user" name="username" required class="input" autofocus />
+          </div>
+          <div>
+            <label>Contraseña</label>
+            <input type="password" name="password" required class="input" autofocus />
+          </div>
+          <div>
+            <label>Codigo Otp</label>
+            <input type="text" name="2fa" required class="input" autofocus />
           </div>
 
           <button type="submit" class="btn">
@@ -52,12 +55,12 @@
           </button>
 
           <div class="footerNote">
-            <span>Conexión cifrada</span>
-            <span class="kbd">Enter</span>
+            <span class="kbd">Developed by: Dev1lB0y</span>
           </div>
         </form>
       </div>
     </div>
   </div>
 </body>
+
 </html>

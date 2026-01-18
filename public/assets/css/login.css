@@ -37,10 +37,18 @@ body {
 }
 
 .shell {
-    min-height: 100vh;
+    min-height: 77vh;
     display: grid;
     place-items: center;
     padding: 22px 14px;
+}
+
+.login-logo {
+    padding: 12px;
+}
+
+.login-logo h1 {
+    font-size: xx-large;
 }
 
 .card {
@@ -125,7 +133,7 @@ label {
     font-size: 12px;
     color: rgba(255, 255, 255, 0.78);
     font-weight: 700;
-    margin-bottom: 8px;
+    margin-block: 8px;
     letter-spacing: 0.15px;
 }
 
@@ -188,6 +196,11 @@ label {
     font-weight: 700;
     letter-spacing: 0.2px;
     user-select: none;
+}
+
+.footerNote {
+    width: 100%;
+    text-align: center;
 }
 
 @media (max-width: 420px) {
