@@ -5,8 +5,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Devil Panel</title>
-  <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
   @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
+  
 
 </head>
 

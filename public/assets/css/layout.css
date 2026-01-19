@@ -33,7 +33,7 @@ body  {
     flex: 1;
 }
 .history-data {
-    padding: 6px 0px 6px 0px;
+    padding: 6px 15px 6px 0px;
 }
 .cc, .logo {
     gap: 6px;
@@ -45,12 +45,12 @@ body  {
 }
 
 .focus-icon {
-    width: 6%;
-    align-items: center;
-    display: flex;
-}
-.focus-icon span{
-   font-size: x-large;
+    width: 100%;
+    position: relative;
+    text-align: center;
+    font-size: xx-large;
+    height: auto;
+    height: 100%;
 }
 
 .history-data-icon {
@@ -62,23 +62,22 @@ body  {
     border-radius: 100%;
 }
 .history-data-icon {
-    width: 12%;
+    width: fit-content;
+    height: 9dvh;
     align-items: center;
-    justify-content: center;
-    display: flex;
-    padding: 6px;
+    display: inline-flex;
+    padding: 9px;
     background: #292a2d;
-    margin: 0px 6px;
     border-radius: 100%;
 }
-.history-data-icon i{
+.history-data-icon{
    font-size: x-large;
    color: var(--green);
 }
 
 .value-container {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-around;
     flex-direction: row;
     /* align-items: center; */
 }
@@ -119,9 +118,18 @@ b.value-label, span.value {
     background: rgb(26 27 30);
 }
 
-#modalOtpHistoryBox {
-    gap: 3vw;
+div#modalDinaHistoryBox, #modalOtpHistoryBox, div#modalLogoHistoryBox {
+    padding: 21px;
 }
+
+#modalCCHistoryBox {
+    flex-direction: column;
+    padding: 21px;
+}
+#modalCCHistoryBox .history-data{
+    width: 100%;
+}
+
 #modalOtpHistoryBox div .value-container, 
 #modalDinaHistoryBox div .value-container {
     flex: 1;
@@ -133,6 +141,7 @@ b.value-label, span.value {
     flex-wrap: wrap;
     background: rgb(26 27 30);
     justify-content: center;
+    align-items: center;
 }
 
 #modalOtherHistoryBox {
@@ -140,14 +149,14 @@ b.value-label, span.value {
     border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: rgb(26 27 30);
-    padding: 21px 12px;
+    padding: 21px;
     font-size: 12px;
     overflow: auto;
     white-space: pre-wrap;
     align-items: center;
     display: flex;
     flex-direction: column;
-    word-break: break-word;
+    word-break: break-all;
     justify-content: center;
 }
 
@@ -156,6 +165,7 @@ b.value-label, span.value {
     font-size: large;
     text-emphasis: "➖";
     text-emphasis-position: under;
+    opacity: .7;
     letter-spacing: 6px;
 }
 
@@ -166,6 +176,7 @@ b.value-label, span.value {
 .common-value {
     font-size: larger;
     text-align: center;
+    opacity: .7;
 }
 
 
@@ -184,13 +195,13 @@ b.value-label, span.value {
 
 .value-label{
   font-size: 12px;
-  opacity: .7;
   margin-right: 6px;
 }
 
 .value{
   font-size: 14px;
   font-weight: 600;
+  opacity: .7;
   letter-spacing: .2px;
   word-break: break-word;
 }
@@ -216,3 +227,33 @@ b.value-label, span.value {
 }
 
 /* responsive: en pantallas muy pequeñas, baja a 1 columna */
+
+
+/* State dot */
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
+    flex: 0 0 auto;
+}
+.dot.green {
+    background: var(--green);
+}
+.dot.red {
+    background: var(--red);
+}
+.dot.yellow {
+    background: var(--yellow);
+}
+.dot.gray {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+#modalOtherHistoryBox .history-data {
+    width: 100%;
+}
+
+#modalOtherHistoryBox div .wb {
+    justify-content: center;
+}

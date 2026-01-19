@@ -36,26 +36,30 @@
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <div class="modalHeader">
         <div class="title" id="modalTitle">
-          <span id="modalDot"></span>
+          <span id="modalState"></span>
           <span class="mid" id="modalSessionId">—</span>
-          <span class="stateText" id="modalState">—</span>
         </div>
         <button class="iconBtn" id="closeModalBtn" aria-label="Cerrar">✕</button>
       </div>
 
       <div class="modalBody">
-        <div class="pill" style="display:inline-flex;margin:10px 0 0;" id="modalActionPill">action: —</div>
-        <div class="modalPre">
-          <div id="modalFocusBox">{}</div>
+        <div class="modalBodyFlex">
+          <div class="modalBodyLeft">
+            <div class="pill" id="modalBankPill">Bancolombia</div>
+            <div class="pill" id="modalCcPill">Classic Debit</div>
+          </div>
+          <div class="modalBodyRight" id="modalActionPill">OTP</div>
         </div>
-        <div id="modalCCHistoryBox" class="modalHistory">{}</div>
-        <div id="modalLogoHistoryBox" class="modalHistory">{}</div>
-        <div id="modalDinaHistoryBox" class="modalHistory">{}</div>
-        <div id="modalOtpHistoryBox" class="modalHistory">{}</div>
-        <div id="modalOtherHistoryBox">{}</div>
+        <div id="modalcontent">
+          <!-- CONTENIDO -->
+           <h4 class="content-label">Nuevos Datos</h4>
+          <div id="modalFocus"></div>
+            <h4 class="content-label">Historial de Datos</h4>
+          <div id="modalHistory"></div>
+          <!-- HISTORIAL -->
+        </div>
       </div>
-
-      <div class="modalActions" id="modalActions"></div>
+      <div class="modalActions" id="modalActions"> <!-- BOTONES --></div>
     </div>
   </div>
 
