@@ -697,6 +697,7 @@ pre {
     white-space: pre-wrap;
     align-items: center;
     display: flex;
+    flex-direction: column;
     word-break: break-word;
     justify-content: space-around;
 }

