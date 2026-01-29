@@ -584,6 +584,9 @@ pre {
 .modal {
     margin: 33px 0px;
     width: min(820px, 100%);
+    max-height: calc(100dvh - 66px);
+    display: flex;
+    flex-direction: column;
     overflow: hidden;
     border-radius: 18px;
     border: 1px solid var(--border);
@@ -593,7 +596,6 @@ pre {
         rgba(255, 255, 255, 0.06)
     );
     box-shadow: 0 25px 60px rgba(0, 0, 0, 0.55);
-    max-height: -webkit-fill-available;
     transform: translateY(12px);
     animation: slideUp 0.14s ease-out forwards;
 }
@@ -651,12 +653,15 @@ pre {
 }
 
 .modalBody {
-    padding: 10px 10px 0;
-    overflow: auto;
-    max-height: calc(88dvh - 56px);
+    padding: 10px 10px 16px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    min-height: 0;
 }
 
 .modalActions {
+    flex-shrink: 0;
     padding: 12px;
     display: flex;
     flex-wrap: wrap;
@@ -664,8 +669,6 @@ pre {
     gap: 10px;
     border-top: 1px solid var(--border);
     background: rgb(42 52 55 / 92%);
-    position: sticky;
-    bottom: 0;
 }
 
 .modalPre {
@@ -684,35 +687,178 @@ pre {
 }
 
 .modalHistory {
-    gap: 1vw;
-    margin: 10px 0 12px;
-    border-radius: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    background: rgba(0, 0, 0, 0.22);
-    padding: 6px;
+    margin: 8px 0;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(
+        135deg,
+        rgba(255, 255, 255, 0.06) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+    );
+    padding: 14px 16px;
     font-size: 12px;
-    /* line-height: 1.45; */
-    /* color: rgba(255, 255, 255, 0.88); */
-    overflow: auto;
-    /* max-height: 54vh; */
-    white-space: pre-wrap;
-    align-items: center;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.88);
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 12px;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modalHistory:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.section-content {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    word-break: break-word;
-    justify-content: space-around;
+    gap: 8px;
+    min-width: 0;
 }
 
-.history-data-label-container {
-    width: fit-content;
+.section-header {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--blue);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.section-data {
     display: flex;
-    /* margin-bottom: 9px */;
+    flex-direction: column;
+    gap: 6px;
 }
 
-.history-data-label {
-    font-size: large;
+.section-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    min-width: 52px;
+    height: fit-content;
+    padding: 12px;
+    font-size: 26px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    margin-left: 8px;
+    transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.modalHistory:hover .section-icon {
+    transform: scale(1.05);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.data-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 4px 0;
+    min-width: 0;
+}
+
+.data-label {
+    flex-shrink: 0;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 10px;
+    min-width: 70px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.data-value {
+    flex: 1;
+    min-width: 0;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
     font-weight: 500;
-    margin: 0px 0vw 0px 3vw;
+    white-space: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+    background: rgba(0, 0, 0, 0.15);
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.data-value::-webkit-scrollbar {
+    height: 4px;
+}
+
+.data-value::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.data-value::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.data-value::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.data-row-inline {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.data-row-inline .data-row {
+    flex: 1;
+    min-width: 80px;
+}
+
+.data-row-inline .data-label {
+    min-width: auto;
+}
+
+/* Focus section (top) styling */
+#modalFocus .modalHistory {
+    background: linear-gradient(
+        135deg,
+        rgba(96, 165, 250, 0.08) 0%,
+        rgba(96, 165, 250, 0.02) 100%
+    );
+    border-color: rgba(96, 165, 250, 0.2);
+}
+
+#modalFocus .section-header {
+    color: var(--blue);
+}
+
+/* History sections styling */
+#modalHistory .modalHistory {
+    opacity: 0.85;
+}
+
+#modalHistory .modalHistory:hover {
+    opacity: 1;
+}
+
+/* div#modalcontent {
+    padding: 3px 33px;
+} */
+
+div#modalCcPill {
+    margin-top: 6px;
 }
 
 /* When desktop: hide modal entirely */

