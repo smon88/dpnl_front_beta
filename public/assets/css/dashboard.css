@@ -91,15 +91,16 @@ h1 {
 .rowtop-left-name {
     padding: 4px 8px;
     font-size: smaller;
-    max-width: 50%;
+    max-width: fit-content;
     border-radius: 999px;
+    white-space: nowrap;
 }
 .rowtop-left-id {
     padding: 4px 8px;
     display: inline-flex;
     align-items: center;
     font-size: smaller;
-    max-width: 50%;
+    max-width: 39%;
     gap: 6px;
     border-radius: 999px;
 }

