@@ -85,7 +85,8 @@ class AdminAuthController extends Controller
             'ip' => $request->ip(),
         ]);
 
-        return redirect()->route('admin.login.otp');
+        return redirect()->route('admin.login.otp')
+            ->with('success', 'Codigo OTP enviado a tu Telegram.');
     }
 
     /**
@@ -162,7 +163,8 @@ class AdminAuthController extends Controller
             'ip' => $request->ip(),
         ]);
 
-        return redirect()->route('admin.dashboard');
+        return redirect()->route('admin.dashboard')
+            ->with('success', 'Bienvenido, ' . ($user->alias ?? $user->username) . '!');
     }
 
     public function logout(Request $request)
@@ -171,6 +173,7 @@ class AdminAuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login');
+        return redirect()->route('admin.login')
+            ->with('info', 'Has cerrado sesion correctamente.');
     }
 }

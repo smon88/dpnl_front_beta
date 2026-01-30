@@ -11,6 +11,8 @@
   {{-- Tu CSS actual del dashboard --}}
   <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
   <link rel="stylesheet" href="{{ asset('assets/css/layout.css') }}">
+  {{-- Reusable Components --}}
+  <link rel="stylesheet" href="{{ asset('assets/css/components.css') }}">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -18,6 +20,12 @@
 </head>
 
 <body>
+  {{-- Page Loader (navigation spinner) --}}
+  <x-page-loader />
+
+  {{-- Toast Notifications Container --}}
+  <x-toast-container />
+
   {{-- Navigation Drawer --}}
   <div class="nav-drawer-overlay" id="navDrawerOverlay"></div>
   <nav class="nav-drawer" id="navDrawer" aria-hidden="true">

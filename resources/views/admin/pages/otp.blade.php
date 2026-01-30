@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/components.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
@@ -19,28 +20,50 @@
                     <img src="{{ asset('assets/img/logo.png') }}" alt="Devil Panels" class="login-logo-img">
                     <h1>Devil Panels</h1>
                 </div>
-                <span class="pill">Verificacion 2FA</span>
+                <span class="pill pill-2fa">
+                    <i class="fas fa-shield-halved"></i>
+                    Verificacion 2FA
+                </span>
             </div>
 
             <div class="otp-info">
                 <i class="fab fa-telegram"></i>
-                <p>Se ha enviado un codigo de 6 digitos a tu Telegram.</p>
+                <p>Se ha enviado un codigo de <strong>6 digitos</strong> a tu Telegram.<br>Ingresalo a continuacion para verificar tu identidad.</p>
             </div>
 
-            @if ($errors->any())
-                <div class="login-alert">
+            {{-- Session Alerts --}}
+            <div class="login-alerts">
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        <div class="alert-content">
+                            <i class="fas fa-check-circle alert-icon"></i>
+                            <span class="alert-message">{{ session('success') }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                @if ($errors->any())
                     @foreach ($errors->all() as $error)
-                        <span><i class="fas fa-exclamation-circle"></i> {{ $error }}</span>
+                        <div class="alert alert-error">
+                            <div class="alert-content">
+                                @if(str_contains($error, 'incorrecto') || str_contains($error, 'expirado'))
+                                    <i class="fas fa-times-circle alert-icon"></i>
+                                @else
+                                    <i class="fas fa-exclamation-circle alert-icon"></i>
+                                @endif
+                                <span class="alert-message">{{ $error }}</span>
+                            </div>
+                        </div>
                     @endforeach
-                </div>
-            @endif
+                @endif
+            </div>
 
             <form method="POST" action="{{ route('admin.login.otp.submit') }}" class="login-form">
                 @csrf
 
                 <div class="input-group">
                     <label for="otp">
-                        <i class="fas fa-shield-halved"></i>
+                        <i class="fas fa-key"></i>
                         Codigo OTP
                     </label>
                     <input
@@ -49,7 +72,7 @@
                         name="otp"
                         required
                         autocomplete="one-time-code"
-                        placeholder="Ingresa el codigo de 6 digitos"
+                        placeholder="000000"
                         maxlength="6"
                         pattern="[0-9]{6}"
                         inputmode="numeric"
@@ -59,7 +82,7 @@
 
                 <button type="submit" class="login-btn">
                     <i class="fas fa-check-circle"></i>
-                    Verificar
+                    Verificar Codigo
                 </button>
             </form>
 
@@ -76,47 +99,42 @@
         </div>
     </div>
 
-    <style>
-        .otp-info {
-            text-align: center;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            background: rgba(0, 136, 204, 0.1);
-            border-radius: 8px;
-            border: 1px solid rgba(0, 136, 204, 0.3);
-        }
-        .otp-info i {
-            font-size: 2rem;
-            color: #0088cc;
-            margin-bottom: 0.5rem;
-        }
-        .otp-info p {
-            margin: 0;
-            color: #ccc;
-            font-size: 0.9rem;
-        }
-        .otp-actions {
-            text-align: center;
-            margin-top: 1rem;
-        }
-        .back-link {
-            color: #888;
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: color 0.2s;
-        }
-        .back-link:hover {
-            color: #fff;
-        }
-        .back-link i {
-            margin-right: 0.3rem;
-        }
-        #otp {
-            text-align: center;
-            font-size: 1.5rem;
-            letter-spacing: 0.5rem;
-            font-weight: bold;
-        }
-    </style>
+    <script>
+        // Auto-format OTP input (only numbers)
+        const otpInput = document.getElementById('otp');
+        otpInput.addEventListener('input', function(e) {
+            this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+        });
+
+        // Auto-submit when 6 digits are entered
+        otpInput.addEventListener('keyup', function(e) {
+            if (this.value.length === 6) {
+                // Small delay to show the complete code
+                setTimeout(() => {
+                    this.form.submit();
+                }, 300);
+            }
+        });
+
+        // Auto-dismiss alerts
+        (function() {
+            const alerts = document.querySelectorAll('.login-alerts .alert');
+            alerts.forEach((alert, index) => {
+                // Click to dismiss
+                alert.style.cursor = 'pointer';
+                alert.addEventListener('click', () => dismissAlert(alert));
+
+                // Auto dismiss after 5 seconds (staggered)
+                const isError = alert.classList.contains('alert-error');
+                const delay = isError ? 8000 : 5000;
+                setTimeout(() => dismissAlert(alert), delay + (index * 200));
+            });
+
+            function dismissAlert(alert) {
+                alert.style.animation = 'alertSlideOut 0.3s ease-in forwards';
+                setTimeout(() => alert.remove(), 300);
+            }
+        })();
+    </script>
 </body>
 </html>

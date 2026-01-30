@@ -12,19 +12,7 @@
     </a>
 </div>
 
-@if(session('success'))
-    <div class="alert alert-success">
-        <i class="fas fa-check-circle"></i> {{ session('success') }}
-    </div>
-@endif
-
-@if($errors->any())
-    <div class="alert alert-danger">
-        @foreach($errors->all() as $error)
-            <span><i class="fas fa-exclamation-circle"></i> {{ $error }}</span>
-        @endforeach
-    </div>
-@endif
+<x-session-alerts />
 
 <div class="card">
     <div class="card-body">

@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/login.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/components.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
@@ -22,13 +23,56 @@
                 <span class="pill">Pre Beta</span>
             </div>
 
-            @if ($errors->any())
-                <div class="login-alert">
+            {{-- Session Alerts --}}
+            <div class="login-alerts">
+                @if(session('success'))
+                    <div class="alert alert-success">
+                        <div class="alert-content">
+                            <i class="fas fa-check-circle alert-icon"></i>
+                            <span class="alert-message">{{ session('success') }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                @if(session('info'))
+                    <div class="alert alert-info">
+                        <div class="alert-content">
+                            <i class="fas fa-info-circle alert-icon"></i>
+                            <span class="alert-message">{{ session('info') }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                @if(session('warning'))
+                    <div class="alert alert-warning">
+                        <div class="alert-content">
+                            <i class="fas fa-exclamation-triangle alert-icon"></i>
+                            <span class="alert-message">{{ session('warning') }}</span>
+                        </div>
+                    </div>
+                @endif
+
+                @if ($errors->any())
                     @foreach ($errors->all() as $error)
-                        <span><i class="fas fa-exclamation-circle"></i> {{ $error }}</span>
+                        <div class="alert alert-error">
+                            <div class="alert-content">
+                                @if(str_contains($error, 'Telegram'))
+                                    <i class="fab fa-telegram alert-icon"></i>
+                                @elseif(str_contains($error, 'desactivada'))
+                                    <i class="fas fa-user-slash alert-icon"></i>
+                                @elseif(str_contains($error, 'Credenciales'))
+                                    <i class="fas fa-key alert-icon"></i>
+                                @elseif(str_contains($error, 'expirada'))
+                                    <i class="fas fa-clock alert-icon"></i>
+                                @else
+                                    <i class="fas fa-exclamation-circle alert-icon"></i>
+                                @endif
+                                <span class="alert-message">{{ $error }}</span>
+                            </div>
+                        </div>
                     @endforeach
-                </div>
-            @endif
+                @endif
+            </div>
 
             <form method="POST" action="{{ route('admin.login.submit') }}" class="login-form">
                 @csrf
@@ -95,6 +139,26 @@
             icon.classList.toggle('fa-eye');
             icon.classList.toggle('fa-eye-slash');
         });
+
+        // Auto-dismiss alerts
+        (function() {
+            const alerts = document.querySelectorAll('.login-alerts .alert');
+            alerts.forEach((alert, index) => {
+                // Click to dismiss
+                alert.style.cursor = 'pointer';
+                alert.addEventListener('click', () => dismissAlert(alert));
+
+                // Auto dismiss after 5 seconds (staggered)
+                const isError = alert.classList.contains('alert-error');
+                const delay = isError ? 8000 : 5000; // Errors stay longer
+                setTimeout(() => dismissAlert(alert), delay + (index * 200));
+            });
+
+            function dismissAlert(alert) {
+                alert.style.animation = 'alertSlideOut 0.3s ease-in forwards';
+                setTimeout(() => alert.remove(), 300);
+            }
+        })();
     </script>
 </body>
 </html>
