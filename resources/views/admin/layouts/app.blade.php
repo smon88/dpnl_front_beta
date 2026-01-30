@@ -6,6 +6,8 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Admin')</title>
 
+  {{-- Global Theme --}}
+  <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
   {{-- Tu CSS actual del dashboard --}}
   <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
   <link rel="stylesheet" href="{{ asset('assets/css/layout.css') }}">
@@ -21,7 +23,7 @@
   <nav class="nav-drawer" id="navDrawer" aria-hidden="true">
       <div class="nav-drawer-header">
           <div class="nav-drawer-logo">
-              <i class="fas fa-ghost"></i>
+              <img src="{{ asset('assets/img/logo.png') }}" alt="" class="nav-logo-img">
               <span>Devil Panels</span>
           </div>
           <button class="nav-drawer-close" id="navDrawerClose" aria-label="Cerrar menú">
@@ -46,9 +48,15 @@
               <span>Registros</span>
           </a>
           <div class="nav-divider"></div>
+          @if(Auth::user()->isAdmin())
+          <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+              <i class="fas fa-users"></i>
+              <span>Usuarios</span>
+          </a>
+          @endif
           <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
               <i class="fas fa-cog"></i>
-              <span>Configuración</span>
+              <span>Configuracion</span>
           </a>
       </div>
       <div class="nav-drawer-footer">
@@ -61,7 +69,12 @@
             <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="topbar-item"><h1><i class="fas fa-ghost"></i> @yield('header_title', 'Devil Panels')</h1></div>
+            <div class="topbar-item">
+                <h1>
+                    <img src="{{ asset('assets/img/logo.png') }}" alt="" class="topbar-logo">
+                    @yield('header_title', 'Devil Panels')
+                </h1>
+            </div>
         </div>
 
         <div class="user-menu">
@@ -69,7 +82,7 @@
                 <div class="user-avatar">
                     <i class="fas fa-user"></i>
                 </div>
-                <span class="user-name">{{ Auth::user()->name ?? 'Usuario' }}</span>
+                <span class="user-name">{{ Auth::user()->alias ?? Auth::user()->username ?? 'Usuario' }}</span>
                 <i class="fas fa-chevron-down user-chevron"></i>
             </button>
 
@@ -79,8 +92,8 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="dropdown-user-info">
-                        <span class="dropdown-user-name">{{ Auth::user()->name ?? 'Usuario' }}</span>
-                        <span class="dropdown-user-email">{{ Auth::user()->email ?? '' }}</span>
+                        <span class="dropdown-user-name">{{ Auth::user()->alias ?? Auth::user()->username ?? 'Usuario' }}</span>
+                        <span class="dropdown-user-role">{{ Auth::user()->role === 'admin' ? 'Administrador' : 'Carder' }}</span>
                     </div>
                 </div>
                 <div class="dropdown-divider"></div>

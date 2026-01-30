@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
 
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Services\NodeBackendService;
 use Illuminate\Http\Request;
@@ -9,21 +10,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
-class AdminAuthController extends Controller
+class LoginController extends Controller
 {
-    private NodeBackendService $nodeBackend;
+    public function __construct(
+        private NodeBackendService $nodeBackend
+    ) {}
 
-    public function __construct(NodeBackendService $nodeBackend)
+    /**
+     * Muestra formulario de login
+     */
+    public function showLoginForm()
     {
-        $this->nodeBackend = $nodeBackend;
-    }
-
-    public function show(Request $request)
-    {
-        if (Auth::check()) {
-            return redirect()->route('admin.dashboard');
-        }
-        return view('admin.pages.login');
+        return view('auth.login');
     }
 
     /**
@@ -33,7 +31,7 @@ class AdminAuthController extends Controller
     {
         $request->validate([
             'username' => 'required|string',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string',
         ]);
 
         $user = User::where('username', $request->username)->first();
@@ -50,20 +48,21 @@ class AdminAuthController extends Controller
             ]);
         }
 
-        // Sincronizar con backend
-        $panelUser = $this->nodeBackend->syncUser($user, $user->backend_uid ? 'update' : 'create');
-        if ($panelUser) {
-            $user->update([
-                'backend_uid' => $panelUser['id'],
-                'tg_linked' => $panelUser['tgLinked'] ?? false,
-            ]);
-            $user->refresh(); // Recargar el modelo con los nuevos valores
+        // Sincronizar con backend si no tiene backend_uid
+        if (!$user->backend_uid) {
+            $panelUser = $this->nodeBackend->syncUser($user, 'create');
+            if ($panelUser) {
+                $user->update([
+                    'backend_uid' => $panelUser['id'],
+                    'tg_linked' => $panelUser['tgLinked'] ?? false,
+                ]);
+            }
         }
 
         // Verificar si tiene Telegram vinculado
         if (!$user->hasTelegramLinked()) {
             return back()->withErrors([
-                'username' => 'Debes vincular tu Telegram primero. Envia /start al bot.',
+                'username' => 'Debes vincular tu Telegram primero. Envía /start al bot.',
             ]);
         }
 
@@ -85,7 +84,7 @@ class AdminAuthController extends Controller
             'ip' => $request->ip(),
         ]);
 
-        return redirect()->route('admin.login.otp');
+        return redirect()->route('login.otp');
     }
 
     /**
@@ -94,18 +93,19 @@ class AdminAuthController extends Controller
     public function showOtpForm(Request $request)
     {
         if (!$request->session()->has('pending_2fa_user')) {
-            return redirect()->route('admin.login');
+            return redirect()->route('login');
         }
 
+        // Verificar expiración
         $expires = $request->session()->get('pending_2fa_expires');
         if ($expires && now()->greaterThan($expires)) {
             $request->session()->forget(['pending_2fa_user', 'pending_2fa_expires']);
-            return redirect()->route('admin.login')->withErrors([
-                'username' => 'Sesion expirada. Inicia sesion nuevamente.',
+            return redirect()->route('login')->withErrors([
+                'username' => 'Sesión expirada. Inicia sesión nuevamente.',
             ]);
         }
 
-        return view('admin.pages.otp');
+        return view('auth.otp');
     }
 
     /**
@@ -119,13 +119,13 @@ class AdminAuthController extends Controller
 
         $userId = $request->session()->get('pending_2fa_user');
         if (!$userId) {
-            return redirect()->route('admin.login');
+            return redirect()->route('login');
         }
 
         $user = User::find($userId);
         if (!$user) {
             $request->session()->forget(['pending_2fa_user', 'pending_2fa_expires']);
-            return redirect()->route('admin.login');
+            return redirect()->route('login');
         }
 
         // Verificar OTP con backend
@@ -138,7 +138,7 @@ class AdminAuthController extends Controller
             ]);
 
             return back()->withErrors([
-                'otp' => 'Codigo incorrecto o expirado.',
+                'otp' => 'Código incorrecto o expirado.',
             ]);
         }
 
@@ -162,15 +162,19 @@ class AdminAuthController extends Controller
             'ip' => $request->ip(),
         ]);
 
-        return redirect()->route('admin.dashboard');
+        return redirect()->intended(route('dashboard'));
     }
 
+    /**
+     * Cerrar sesión
+     */
     public function logout(Request $request)
     {
         Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('admin.login');
+        return redirect()->route('login');
     }
 }

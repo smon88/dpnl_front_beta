@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
 
 class AdminSocketTokenController extends Controller
 {
     public function issue(Request $request)
-    {   
-        
-        $adminKey = env('ADMIN_SESSION_KEY', 'admin_authenticated');
-        if (!$request->session()->get($adminKey)) {
+    {
+        if (!Auth::check()) {
             return response()->json(['error' => 'not_authenticated'], 401);
         }
 
-        $adminId = $request->session()->get('admin_id', env('ADMIN_ID', 'admin-1'));
+        $user = Auth::user();
+        $adminId = $user->backend_uid ?? $user->id;
        
         /** @var \Illuminate\Http\Client\Response $resp */
         $resp = Http::withHeaders([
