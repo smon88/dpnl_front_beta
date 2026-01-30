@@ -24,6 +24,9 @@ Route::middleware(['admin.session'])->group(function () {
     Route::get('/admin/dashboard', [AdminDashboardController::class, 'index'])->name('admin.dashboard');
     Route::get('/admin/profile', [AdminDashboardController::class, 'profile'])->name('admin.profile');
     Route::get('/admin/traffic', [AdminDashboardController::class, 'traffic'])->name('admin.traffic');
+    Route::get('/admin/tools', [AdminDashboardController::class, 'tools'])->name('admin.tools');
+    Route::get('/admin/records', [AdminDashboardController::class, 'records'])->name('admin.records');
+    Route::get('/admin/settings', [AdminDashboardController::class, 'settings'])->name('admin.settings');
     // token para socket admin (lo usa el dashboard)
     Route::get('/admin/socket-token', [AdminSocketTokenController::class, 'issue'])->name('admin.socket.token');
 });

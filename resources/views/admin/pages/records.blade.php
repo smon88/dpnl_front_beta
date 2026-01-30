@@ -1,20 +1,20 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Perfil')
-@section('header_title', 'Mi Perfil')
-@section('page_id', 'profile')
+@section('title', 'Registros')
+@section('header_title', 'Registros')
+@section('page_id', 'records')
 
 @section('content')
   <div class="card">
     <div class="cardHeader">
-      <h2>Perfil de Usuario</h2>
+      <h2>Registros</h2>
     </div>
     <div class="cardBody">
       <div class="dev-placeholder">
-        <div class="dev-placeholder-icon">👤</div>
-        <h3 class="dev-placeholder-title">Mi Perfil</h3>
+        <div class="dev-placeholder-icon">📊</div>
+        <h3 class="dev-placeholder-title">Registros del Sistema</h3>
         <p class="dev-placeholder-subtitle">
-          Gestiona tu información personal, cambia tu contraseña y configura las preferencias de tu cuenta.
+          Aquí podrás consultar los registros históricos, logs y estadísticas del sistema.
         </p>
         <div class="dev-placeholder-badge">
           <i class="fas fa-code"></i>

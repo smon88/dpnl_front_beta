@@ -16,8 +16,53 @@
 </head>
 
 <body>
+  {{-- Navigation Drawer --}}
+  <div class="nav-drawer-overlay" id="navDrawerOverlay"></div>
+  <nav class="nav-drawer" id="navDrawer" aria-hidden="true">
+      <div class="nav-drawer-header">
+          <div class="nav-drawer-logo">
+              <i class="fas fa-ghost"></i>
+              <span>Devil Panels</span>
+          </div>
+          <button class="nav-drawer-close" id="navDrawerClose" aria-label="Cerrar menú">
+              <i class="fas fa-times"></i>
+          </button>
+      </div>
+      <div class="nav-drawer-content">
+          <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+              <i class="fas fa-chart-line"></i>
+              <span>Dashboard</span>
+          </a>
+          <a href="{{ route('admin.traffic') }}" class="nav-item {{ request()->routeIs('admin.traffic') ? 'active' : '' }}">
+              <i class="fas fa-signal"></i>
+              <span>Tráfico</span>
+          </a>
+          <a href="{{ route('admin.tools') }}" class="nav-item {{ request()->routeIs('admin.tools') ? 'active' : '' }}">
+              <i class="fas fa-tools"></i>
+              <span>Herramientas</span>
+          </a>
+          <a href="{{ route('admin.records') }}" class="nav-item {{ request()->routeIs('admin.records') ? 'active' : '' }}">
+              <i class="fas fa-database"></i>
+              <span>Registros</span>
+          </a>
+          <div class="nav-divider"></div>
+          <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+              <i class="fas fa-cog"></i>
+              <span>Configuración</span>
+          </a>
+      </div>
+      <div class="nav-drawer-footer">
+          <span class="nav-version">v1.0.0</span>
+      </div>
+  </nav>
+
   <div class="topbar">
-        <div class="topbar-item"><h1>@yield('header_title', 'Devil Panels')</h1></div>
+        <div class="topbar-left">
+            <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="topbar-item"><h1><i class="fas fa-ghost"></i> @yield('header_title', 'Devil Panels')</h1></div>
+        </div>
 
         <div class="user-menu">
             <button class="user-menu-trigger" id="userMenuTrigger" aria-expanded="false" aria-haspopup="true">
@@ -48,10 +93,13 @@
                     <span>Configuración</span>
                 </a>
                 <div class="dropdown-divider"></div>
-                <a href="{{ route('admin.logout') }}" class="dropdown-item dropdown-item-danger">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Cerrar Sesión</span>
-                </a>
+                <form action="{{ route('admin.logout') }}" method="POST" style="margin:0;">
+                    @csrf
+                    <button type="submit" class="dropdown-item dropdown-item-danger">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -73,6 +121,42 @@
 
   {{-- App modular --}}
   <script type="module" src="{{ asset('assets/js/admin/app.js') }}"></script>
+
+  {{-- Navigation Drawer Script --}}
+  <script>
+    (function() {
+      const toggle = document.getElementById('navToggle');
+      const drawer = document.getElementById('navDrawer');
+      const overlay = document.getElementById('navDrawerOverlay');
+      const closeBtn = document.getElementById('navDrawerClose');
+
+      if (!toggle || !drawer || !overlay) return;
+
+      function toggleDrawer(open) {
+        const isOpen = open ?? !drawer.classList.contains('open');
+        drawer.classList.toggle('open', isOpen);
+        overlay.classList.toggle('active', isOpen);
+        toggle.setAttribute('aria-expanded', isOpen);
+        drawer.setAttribute('aria-hidden', !isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      }
+
+      toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleDrawer();
+      });
+
+      closeBtn?.addEventListener('click', () => toggleDrawer(false));
+      overlay.addEventListener('click', () => toggleDrawer(false));
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && drawer.classList.contains('open')) {
+          toggleDrawer(false);
+          toggle.focus();
+        }
+      });
+    })();
+  </script>
 
   {{-- User Menu Script --}}
   <script>

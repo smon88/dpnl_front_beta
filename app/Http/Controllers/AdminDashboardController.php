@@ -18,4 +18,19 @@ class AdminDashboardController extends Controller
     {
         return view('admin.pages.traffic');
     }
+
+    public function tools()
+    {
+        return view('admin.pages.tools');
+    }
+
+    public function records()
+    {
+        return view('admin.pages.records');
+    }
+
+    public function settings()
+    {
+        return view('admin.pages.settings');
+    }
 }
