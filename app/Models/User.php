@@ -51,4 +51,21 @@ class User extends Authenticatable
     {
         return $this->tg_linked;
     }
+
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user')
+            ->withPivot(['role', 'status'])
+            ->withTimestamps();
+    }
+
+    public function approvedProjects()
+    {
+        return $this->projects()->wherePivot('status', 'approved');
+    }
+
+    public function pendingProjects()
+    {
+        return $this->projects()->wherePivot('status', 'pending');
+    }
 }

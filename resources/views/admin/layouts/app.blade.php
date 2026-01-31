@@ -56,10 +56,22 @@
               <span>Registros</span>
           </a>
           <div class="nav-divider"></div>
+          {{-- Opciones para usuarios normales --}}
+          @if(!Auth::user()->isAdmin())
+          <a href="{{ route('projects.my') }}" class="nav-item {{ request()->routeIs('projects.*') ? 'active' : '' }}">
+              <i class="fas fa-folder"></i>
+              <span>Mis Proyectos</span>
+          </a>
+          @endif
+          {{-- Opciones solo para admin --}}
           @if(Auth::user()->isAdmin())
           <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
               <i class="fas fa-users"></i>
               <span>Usuarios</span>
+          </a>
+          <a href="{{ route('admin.projects.index') }}" class="nav-item {{ request()->routeIs('admin.projects.*') ? 'active' : '' }}">
+              <i class="fas fa-project-diagram"></i>
+              <span>Proyectos</span>
           </a>
           @endif
           <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">

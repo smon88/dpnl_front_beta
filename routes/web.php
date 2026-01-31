@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminSocketTokenController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProjectController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -43,4 +44,25 @@ Route::middleware(['admin.session'])->group(function () {
     Route::get('/admin/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/admin/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/admin/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    // Gestión de proyectos (solo admin)
+    Route::get('/admin/projects', [ProjectController::class, 'index'])->name('admin.projects.index');
+    Route::get('/admin/projects/create', [ProjectController::class, 'create'])->name('admin.projects.create');
+    Route::post('/admin/projects', [ProjectController::class, 'store'])->name('admin.projects.store');
+    Route::get('/admin/projects/{project}', [ProjectController::class, 'show'])->name('admin.projects.show');
+    Route::get('/admin/projects/{project}/edit', [ProjectController::class, 'edit'])->name('admin.projects.edit');
+    Route::put('/admin/projects/{project}', [ProjectController::class, 'update'])->name('admin.projects.update');
+    Route::delete('/admin/projects/{project}', [ProjectController::class, 'destroy'])->name('admin.projects.destroy');
+
+    // Gestión de miembros de proyecto (solo admin)
+    Route::post('/admin/projects/{project}/assign', [ProjectController::class, 'assignUser'])->name('admin.projects.assign');
+    Route::post('/admin/projects/{project}/users/{user}/approve', [ProjectController::class, 'approveUser'])->name('admin.projects.approve');
+    Route::post('/admin/projects/{project}/users/{user}/reject', [ProjectController::class, 'rejectUser'])->name('admin.projects.reject');
+    Route::delete('/admin/projects/{project}/users/{user}', [ProjectController::class, 'removeUser'])->name('admin.projects.remove');
+    Route::put('/admin/projects/{project}/users/{user}/role', [ProjectController::class, 'updateUserRole'])->name('admin.projects.role');
+
+    // Proyectos para usuarios normales
+    Route::get('/projects/available', [ProjectController::class, 'available'])->name('projects.available');
+    Route::get('/projects/my', [ProjectController::class, 'myProjects'])->name('projects.my');
+    Route::post('/projects/{project}/request', [ProjectController::class, 'requestAccess'])->name('projects.request');
 });

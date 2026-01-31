@@ -1,7 +1,7 @@
 // =========================
 // Config / State
 // =========================
-const nodeUrl = "http://192.168.145.120:3005";
+const nodeUrl = "http://192.168.18.120:3005";
 let socket;
 let sessionsById = {};
 let selectedId = null;
@@ -844,7 +844,7 @@ function renderList() {
                 </div>
                 <div class="rowtop-left-name">
                   <span class="sname">${escapeHtml(s.name ?? "Sin nombre")}</span>
-                  - <span class="scam">${escapeHtml(s.scam ?? "LATAM")}</span>
+                  - <span class="project-slug">${escapeHtml(s.project ?? "Sin proyecto")}</span>
                 </div>
               </div>
               <div class="rowtop-rigth">

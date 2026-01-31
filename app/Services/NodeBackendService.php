@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\User;
+use App\Models\Project;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -117,6 +118,82 @@ class NodeBackendService
             return null;
         } catch (\Exception $e) {
             Log::error('NodeBackendService::verifyOtp exception', [
+                'message' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Sincroniza proyecto con el backend Node
+     */
+    public function syncProject(Project $project, string $action = 'create'): ?array
+    {
+        try {
+            $response = Http::withHeaders([
+                'X-SHARED-SECRET' => $this->sharedSecret,
+            ])->timeout(10)->post("{$this->baseUrl}/api/projects/sync", [
+                'slug' => $project->slug,
+                'name' => $project->name,
+                'url' => $project->url,
+                'description' => $project->description,
+                'isActive' => $project->is_active,
+                'action' => $action,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['project'] ?? null;
+            }
+
+            Log::error('NodeBackendService::syncProject failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('NodeBackendService::syncProject exception', [
+                'message' => $e->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Sincroniza membresía de usuario en proyecto
+     */
+    public function syncProjectMember(
+        Project $project,
+        User $user,
+        string $role,
+        string $status,
+        string $action = 'add'
+    ): ?array {
+        try {
+            $response = Http::withHeaders([
+                'X-SHARED-SECRET' => $this->sharedSecret,
+            ])->timeout(10)->post("{$this->baseUrl}/api/projects/members/sync", [
+                'projectSlug' => $project->slug,
+                'laravelUserId' => $user->id,
+                'role' => $role,
+                'status' => $status,
+                'action' => $action,
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return $data['member'] ?? null;
+            }
+
+            Log::error('NodeBackendService::syncProjectMember failed', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error('NodeBackendService::syncProjectMember exception', [
                 'message' => $e->getMessage(),
             ]);
             return null;
