@@ -789,6 +789,138 @@ export async function connectAdmin() {
     });
 
     socket.on("error:msg", (msg) => alert(msg));
+
+    // ========================================
+    // Panel User Presence Events
+    // ========================================
+    socket.on("panel-user:online", (user) => {
+        console.log("[WS] User online:", user);
+        updateUserOnlineStatus(user.odId, true, user);
+    });
+
+    socket.on("panel-user:offline", (data) => {
+        console.log("[WS] User offline:", data.odId);
+        updateUserOnlineStatus(data.odId, false);
+    });
+
+    // ========================================
+    // Project Membership Events
+    // ========================================
+    socket.on("project:membership-update", (update) => {
+        console.log("[WS] Project membership update:", update);
+        showMembershipNotification(update);
+    });
+}
+
+// ========================================
+// User Presence UI Functions
+// ========================================
+function updateUserOnlineStatus(userId, isOnline, userData = null) {
+    // Find user row in the users table
+    const userRow = document.querySelector(`tr[data-user-id="${userId}"]`);
+    if (!userRow) return;
+
+    const statusEl = userRow.querySelector("[data-online-indicator]");
+    if (!statusEl) return;
+
+    if (isOnline) {
+        statusEl.classList.remove("offline");
+        statusEl.classList.add("online");
+        statusEl.querySelector(".online-text").textContent = "Online";
+    } else {
+        statusEl.classList.remove("online");
+        statusEl.classList.add("offline");
+        statusEl.querySelector(".online-text").textContent = "Offline";
+    }
+}
+
+// ========================================
+// Membership Notification Functions
+// ========================================
+function showMembershipNotification(update) {
+    const { projectId, projectName, status } = update;
+
+    let message = "";
+    let type = "info";
+
+    switch (status) {
+        case "APPROVED":
+            message = `Tu solicitud para el proyecto "${projectName}" ha sido aprobada.`;
+            type = "success";
+            break;
+        case "REJECTED":
+            message = `Tu solicitud para el proyecto "${projectName}" ha sido rechazada.`;
+            type = "error";
+            break;
+        case "REMOVED":
+            message = `Has sido removido del proyecto "${projectName}".`;
+            type = "warning";
+            break;
+    }
+
+    showToast(message, type);
+
+    // If approved, we might want to refresh the page or update UI
+    if (status === "APPROVED") {
+        // Optional: Reload the page after a delay to get new project access
+        setTimeout(() => {
+            if (confirm("Has sido aprobado para un nuevo proyecto. ¿Deseas recargar la pagina para ver las sesiones?")) {
+                window.location.reload();
+            }
+        }, 2000);
+    }
+}
+
+// ========================================
+// Toast Notification Helper
+// ========================================
+function showToast(message, type = "info") {
+    // Check if there's a toast container
+    const container = document.getElementById("toast-container") || createToastContainer();
+
+    const toast = document.createElement("div");
+    toast.className = `toast toast-${type}`;
+
+    const icons = {
+        success: "fas fa-check-circle",
+        error: "fas fa-times-circle",
+        warning: "fas fa-exclamation-triangle",
+        info: "fas fa-info-circle",
+    };
+
+    const titles = {
+        success: "Exito",
+        error: "Error",
+        warning: "Aviso",
+        info: "Info",
+    };
+
+    toast.innerHTML = `
+        <i class="toast-icon ${icons[type] || icons.info}"></i>
+        <div class="toast-content">
+            <div class="toast-title">${titles[type] || titles.info}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        toast.classList.add("toast-exit");
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+function createToastContainer() {
+    const container = document.createElement("div");
+    container.id = "toast-container";
+    container.className = "toast-container";
+    document.body.appendChild(container);
+    return container;
 }
 
 // =========================
@@ -843,8 +975,9 @@ function renderList() {
                   <span class="sid">${escapeHtml(s.id)}</span>
                 </div>
                 <div class="rowtop-left-name">
+                  <span class="project-slug">${escapeHtml(s.project ?? "Sin proyecto")}</span>
+                  <br>
                   <span class="sname">${escapeHtml(s.name ?? "Sin nombre")}</span>
-                  - <span class="project-slug">${escapeHtml(s.project ?? "Sin proyecto")}</span>
                 </div>
               </div>
               <div class="rowtop-rigth">

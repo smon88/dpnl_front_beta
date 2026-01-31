@@ -16,7 +16,7 @@
 
 <div class="card">
     <div class="card-body">
-        <table class="table">
+        <table class="table" id="usersTable">
             <thead>
                 <tr>
                     <th>Usuario</th>
@@ -24,13 +24,14 @@
                     <th>Telegram</th>
                     <th>Rol</th>
                     <th>Estado</th>
+                    <th>Conexion</th>
                     <th>Ultimo Login</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($users as $user)
-                    <tr>
+                    <tr data-user-id="{{ $user->backend_uid }}">
                         <td>
                             <strong>{{ $user->username }}</strong>
                         </td>
@@ -60,6 +61,12 @@
                             </span>
                         </td>
                         <td>
+                            <span class="online-status offline" data-online-indicator>
+                                <span class="online-dot"></span>
+                                <span class="online-text">Offline</span>
+                            </span>
+                        </td>
+                        <td>
                             {{ $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Nunca' }}
                         </td>
                         <td class="actions">
@@ -81,7 +88,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center text-muted">
+                        <td colspan="8" class="text-center text-muted">
                             No hay usuarios registrados.
                         </td>
                     </tr>
