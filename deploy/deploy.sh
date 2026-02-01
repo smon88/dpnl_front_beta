@@ -36,7 +36,7 @@ PANEL_DIR="/var/www/dpnl_front_beta"
 BACKEND_DIR="/var/www/node_back"
 PANEL_REPO="git@github.com:smon88/dpnl_front_beta.git"
 BACKEND_REPO="git@github.com:smon88/node_back.git"
-DEPLOY_USER="ubuntu"
+DEPLOY_USER="dev1lb0y"
 PHP_FPM_SERVICE="php8.3-fpm"
 BACKUP_DIR="/var/backups/devil-panels"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
@@ -109,7 +109,7 @@ deploy_panel() {
     # Pull ultimos cambios
     log_step "Descargando ultimos cambios..."
     git fetch origin
-    git reset --hard origin/feat_dev
+    git reset --hard origin/main
 
     # Instalar dependencias
     log_step "Instalando dependencias de Composer..."

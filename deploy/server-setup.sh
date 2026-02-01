@@ -180,7 +180,7 @@ log_success "Node.js $(node -v) instalado"
 # ============================================
 log_info "Instalando PM2..."
 npm install -g pm2
-pm2 startup systemd -u ubuntu --hp /home/ubuntu
+pm2 startup systemd -u dev1lb0y --hp /home/dev1lb0y
 log_success "PM2 instalado"
 
 # ============================================
@@ -190,8 +190,8 @@ log_info "Creando directorios de aplicacion..."
 mkdir -p /var/www/dpnl_front_beta
 mkdir -p /var/www/node_back
 mkdir -p /etc/ssl/cloudflare
-chown -R ubuntu:ubuntu /var/www/dpnl_front_beta
-chown -R ubuntu:ubuntu /var/www/node_back
+chown -R dev1lb0y:dev1lb0y /var/www/dpnl_front_beta
+chown -R dev1lb0y:dev1lb0y /var/www/node_back
 log_success "Directorios creados"
 
 # ============================================
@@ -240,15 +240,15 @@ log_success "Fail2Ban configurado"
 # ============================================
 # 13. Crear Usuario para Deployments (opcional)
 # ============================================
-log_info "Configurando usuario ubuntu para deployments..."
-usermod -aG www-data ubuntu
+log_info "Configurando usuario dev1lb0y para deployments..."
+usermod -aG www-data dev1lb0y
 
 # Configurar SSH key para deployments automaticos
-mkdir -p /home/ubuntu/.ssh
-chmod 700 /home/ubuntu/.ssh
-touch /home/ubuntu/.ssh/authorized_keys
-chmod 600 /home/ubuntu/.ssh/authorized_keys
-chown -R ubuntu:ubuntu /home/ubuntu/.ssh
+mkdir -p /home/dev1lb0y/.ssh
+chmod 700 /home/ubdev1lb0yuntu/.ssh
+touch /home/dev1lb0y/.ssh/authorized_keys
+chmod 600 /home/dev1lb0y/.ssh/authorized_keys
+chown -R dev1lb0y:dev1lb0y /home/dev1lb0y/.ssh
 
 log_success "Usuario configurado"
 
@@ -263,8 +263,8 @@ cat >> /etc/security/limits.conf <<EOF
 # Devil Panels Optimizations
 * soft nofile 65535
 * hard nofile 65535
-ubuntu soft nofile 65535
-ubuntu hard nofile 65535
+dev1lb0y soft nofile 65535
+dev1lb0y hard nofile 65535
 www-data soft nofile 65535
 www-data hard nofile 65535
 EOF
