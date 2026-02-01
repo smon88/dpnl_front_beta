@@ -109,7 +109,7 @@ deploy_panel() {
     # Pull ultimos cambios
     log_step "Descargando ultimos cambios..."
     git fetch origin
-    git reset --hard origin/main
+    git reset --hard origin/feat_dev
 
     # Instalar dependencias
     log_step "Instalando dependencias de Composer..."
