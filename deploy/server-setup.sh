@@ -122,10 +122,24 @@ log_info "Instalando PostgreSQL..."
 apt install -y postgresql postgresql-contrib
 
 # Configurar PostgreSQL
+
+sudo -u postgres psql dpns <<EOF
+GRANT ALL ON SCHEMA public TO ${DB_USER};
+ALTER SCHEMA public OWNER TO ${DB_USER};
+EOF
+
+
 sudo -u postgres psql <<EOF
-CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASSWORD}';
-CREATE DATABASE devil_backend OWNER ${DB_USER};
-GRANT ALL PRIVILEGES ON DATABASE devil_backend TO ${DB_USER};
+DO \$\$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '${DB_USER}') THEN
+    CREATE USER ${DB_USER} WITH PASSWORD '${DB_PASSWORD}';
+  END IF;
+END
+\$\$;
+
+CREATE DATABASE dpns OWNER ${DB_USER};
+GRANT ALL PRIVILEGES ON DATABASE dpns TO ${DB_USER};
 EOF
 
 systemctl enable postgresql
@@ -149,8 +163,8 @@ apt install -y redis-server
 sed -i "s/# requirepass foobared/requirepass ${REDIS_PASSWORD}/" /etc/redis/redis.conf
 sed -i 's/supervised no/supervised systemd/' /etc/redis/redis.conf
 
-systemctl restart redis
-systemctl enable redis
+systemctl restart redis-server
+systemctl enable redis-server
 log_success "Redis instalado y configurado"
 
 # ============================================
@@ -173,11 +187,11 @@ log_success "PM2 instalado"
 # 10. Crear Directorios de Aplicacion
 # ============================================
 log_info "Creando directorios de aplicacion..."
-mkdir -p /var/www/devil-panel
-mkdir -p /var/www/devil-backend
+mkdir -p /var/www/dpnl_front_beta
+mkdir -p /var/www/node_back
 mkdir -p /etc/ssl/cloudflare
-chown -R ubuntu:ubuntu /var/www/devil-panel
-chown -R ubuntu:ubuntu /var/www/devil-backend
+chown -R ubuntu:ubuntu /var/www/dpnl_front_beta
+chown -R ubuntu:ubuntu /var/www/node_back
 log_success "Directorios creados"
 
 # ============================================
@@ -290,12 +304,12 @@ echo "  - PM2: $(pm2 -v)"
 echo "  - Composer: $(composer --version | cut -d' ' -f3)"
 echo ""
 echo "Bases de datos:"
-echo "  - PostgreSQL: devil_backend (para Node backend)"
+echo "  - PostgreSQL: dpns (para Node backend)"
 echo "  - SQLite: database.sqlite (para Laravel panel)"
 echo ""
 echo "Directorios:"
-echo "  - /var/www/devil-panel (Laravel)"
-echo "  - /var/www/devil-backend (Node)"
+echo "  - /var/www/dpnl_front_beta (Laravel)"
+echo "  - /var/www/node_back (Node)"
 echo "  - /etc/ssl/cloudflare (Certificados)"
 echo ""
 echo "============================================"
