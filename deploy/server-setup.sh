@@ -245,7 +245,7 @@ usermod -aG www-data dev1lb0y
 
 # Configurar SSH key para deployments automaticos
 mkdir -p /home/dev1lb0y/.ssh
-chmod 700 /home/ubdev1lb0yuntu/.ssh
+chmod 700 /home/dev1lb0y/.ssh
 touch /home/dev1lb0y/.ssh/authorized_keys
 chmod 600 /home/dev1lb0y/.ssh/authorized_keys
 chown -R dev1lb0y:dev1lb0y /home/dev1lb0y/.ssh
