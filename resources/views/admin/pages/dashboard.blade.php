@@ -5,6 +5,11 @@
 @section('page_id', 'dashboard')
 
 @section('content')
+  {{-- Pasar mapa de proyectos al JavaScript --}}
+  <script>
+    window.PROJECTS_MAP = @json($projectsMap ?? []);
+  </script>
+
   <div class="wrap">
     <div class="card">
       <div class="cardHeader">
@@ -15,7 +20,64 @@
         </div> -->
       </div>
       <div class="cardBody">
-        <div id="sessionsList"></div>
+        {{-- Skeleton Loading --}}
+        <div id="sessionsSkeleton" class="loading">
+          @for($i = 0; $i < 5; $i++)
+          <div class="skeleton-session">
+            <div class="skeleton-session-top">
+              <div class="skeleton-session-left">
+                <div class="skeleton skeleton-session-dot"></div>
+                <div class="skeleton skeleton-session-id"></div>
+              </div>
+              <div class="skeleton skeleton-session-action"></div>
+            </div>
+            <div class="skeleton-session-bottom">
+              <div class="skeleton skeleton-session-bank"></div>
+              <div class="skeleton-session-meta">
+                <div class="skeleton skeleton-session-meta-item"></div>
+                <div class="skeleton skeleton-session-meta-item"></div>
+                <div class="skeleton skeleton-session-meta-item"></div>
+                <div class="skeleton skeleton-session-meta-item"></div>
+                <div class="skeleton skeleton-session-meta-item"></div>
+              </div>
+            </div>
+          </div>
+          @endfor
+        </div>
+        {{-- Sessions List --}}
+        <div id="sessionsList" class="loading"></div>
+
+        {{-- Pagination --}}
+        <div id="sessionsPagination" class="pagination-wrapper" style="display: none;">
+          <div class="pagination-controls">
+            <div class="pagination-per-page">
+              <label for="sessionsPerPage">Mostrar:</label>
+              <select id="sessionsPerPage" class="pagination-select">
+                <option value="10">10</option>
+                <option value="15" selected>15</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+              <span>por página</span>
+            </div>
+            <div class="pagination-info" id="paginationInfo"></div>
+          </div>
+          <nav class="pagination" aria-label="Paginacion">
+            <button class="pagination-btn" id="firstPage" aria-label="Primera página">
+              <i class="fas fa-angle-double-left"></i>
+            </button>
+            <button class="pagination-btn" id="prevPage" aria-label="Anterior">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="pagination-pages" id="paginationPages"></div>
+            <button class="pagination-btn" id="nextPage" aria-label="Siguiente">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+            <button class="pagination-btn" id="lastPage" aria-label="Última página">
+              <i class="fas fa-angle-double-right"></i>
+            </button>
+          </nav>
+        </div>
       </div>
     </div>
 

@@ -95,6 +95,8 @@
                 @endforelse
             </tbody>
         </table>
+
+        <x-pagination :paginator="$users" />
     </div>
 </div>
 @endsection

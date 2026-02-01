@@ -21,7 +21,7 @@
         <h5>
             <i class="fas fa-clock"></i>
             Solicitudes Pendientes
-            <span class="badge badge-warning">{{ $pendingProjects->count() }}</span>
+            <span class="badge badge-warning">{{ $pendingProjects->total() }}</span>
         </h5>
     </div>
     <div class="card-body">
@@ -44,6 +44,7 @@
                 </div>
             @endforeach
         </div>
+        <x-pagination :paginator="$pendingProjects" pageName="pending" />
     </div>
 </div>
 @endif
@@ -54,7 +55,7 @@
         <h5>
             <i class="fas fa-check-circle"></i>
             Proyectos Aprobados
-            <span class="badge badge-success">{{ $approvedProjects->count() }}</span>
+            <span class="badge badge-success">{{ $approvedProjects->total() }}</span>
         </h5>
     </div>
     <div class="card-body">
@@ -90,6 +91,7 @@
                     </div>
                 @endforeach
             </div>
+            <x-pagination :paginator="$approvedProjects" pageName="approved" />
         @else
             <div class="alert alert-info mb-0">
                 <i class="fas fa-info-circle"></i>

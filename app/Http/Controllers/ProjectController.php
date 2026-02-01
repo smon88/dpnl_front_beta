@@ -20,12 +20,22 @@ class ProjectController extends Controller
     /**
      * Lista de proyectos (Admin)
      */
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->get('per_page', 12);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? $perPage : 12;
+
         $projects = Project::withCount([
             'users as approved_count' => fn($q) => $q->wherePivot('status', 'approved'),
             'users as pending_count' => fn($q) => $q->wherePivot('status', 'pending'),
-        ])->orderBy('created_at', 'desc')->get();
+        ])->orderBy('created_at', 'desc')->paginate($perPage);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('admin.projects._table', compact('projects'))->render(),
+                'pagination' => view('components.pagination', ['paginator' => $projects])->render(),
+            ]);
+        }
 
         return view('admin.projects.index', compact('projects'));
     }
@@ -77,12 +87,23 @@ class ProjectController extends Controller
     /**
      * Ver proyecto con miembros (Admin)
      */
-    public function show(Project $project)
+    public function show(Request $request, Project $project)
     {
-        $project->load(['users' => fn($q) => $q->orderByPivot('created_at', 'desc')]);
+        $perPageApproved = $request->get('per_page_approved', 10);
+        $perPageApproved = in_array($perPageApproved, [10, 15, 25, 50]) ? $perPageApproved : 10;
 
-        $approvedUsers = $project->users->where('pivot.status', 'approved');
-        $pendingUsers = $project->users->where('pivot.status', 'pending');
+        $perPagePending = $request->get('per_page_pending', 10);
+        $perPagePending = in_array($perPagePending, [10, 15, 25, 50]) ? $perPagePending : 10;
+
+        $approvedUsers = $project->users()
+            ->wherePivot('status', 'approved')
+            ->orderByPivot('created_at', 'desc')
+            ->paginate($perPageApproved, ['*'], 'approved');
+
+        $pendingUsers = $project->users()
+            ->wherePivot('status', 'pending')
+            ->orderByPivot('created_at', 'desc')
+            ->paginate($perPagePending, ['*'], 'pending');
 
         return view('admin.projects.show', compact('project', 'approvedUsers', 'pendingUsers'));
     }
@@ -245,15 +266,18 @@ class ProjectController extends Controller
     /**
      * Proyectos disponibles para solicitar acceso (User)
      */
-    public function available()
+    public function available(Request $request)
     {
         $user = auth()->user();
+
+        $perPage = $request->get('per_page', 12);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? $perPage : 12;
 
         // Proyectos activos donde el usuario NO está
         $projects = Project::where('is_active', true)
             ->whereDoesntHave('users', fn($q) => $q->where('user_id', $user->id))
             ->orderBy('name')
-            ->get();
+            ->paginate($perPage);
 
         return view('projects.available', compact('projects'));
     }
@@ -261,12 +285,18 @@ class ProjectController extends Controller
     /**
      * Mis proyectos (User)
      */
-    public function myProjects()
+    public function myProjects(Request $request)
     {
         $user = auth()->user();
 
-        $approvedProjects = $user->approvedProjects()->get();
-        $pendingProjects = $user->pendingProjects()->get();
+        $perPageApproved = $request->get('per_page_approved', 12);
+        $perPageApproved = in_array($perPageApproved, [10, 15, 25, 50]) ? $perPageApproved : 12;
+
+        $perPagePending = $request->get('per_page_pending', 12);
+        $perPagePending = in_array($perPagePending, [10, 15, 25, 50]) ? $perPagePending : 12;
+
+        $approvedProjects = $user->approvedProjects()->paginate($perPageApproved, ['*'], 'approved');
+        $pendingProjects = $user->pendingProjects()->paginate($perPagePending, ['*'], 'pending');
 
         return view('projects.my', compact('approvedProjects', 'pendingProjects'));
     }

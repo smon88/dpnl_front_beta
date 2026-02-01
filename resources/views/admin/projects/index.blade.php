@@ -66,6 +66,8 @@
                 @endforelse
             </tbody>
         </table>
+
+        <x-pagination :paginator="$projects" />
     </div>
 </div>
 @endsection

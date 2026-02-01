@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(cmd //c \"wmic logicaldisk get size,freespace,caption\")"
+    ]
+  }
+}

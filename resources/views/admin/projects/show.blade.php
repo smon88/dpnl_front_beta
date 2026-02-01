@@ -103,7 +103,7 @@
                 <h5>
                     <i class="fas fa-clock"></i>
                     Solicitudes Pendientes
-                    <span class="badge badge-warning">{{ $pendingUsers->count() }}</span>
+                    <span class="badge badge-warning">{{ $pendingUsers->total() }}</span>
                 </h5>
             </div>
             <div class="card-body">
@@ -141,6 +141,7 @@
                         @endforeach
                     </tbody>
                 </table>
+                <x-pagination :paginator="$pendingUsers" pageName="pending" />
             </div>
         </div>
         @endif
@@ -151,7 +152,7 @@
                 <h5>
                     <i class="fas fa-users"></i>
                     Usuarios del Proyecto
-                    <span class="badge badge-success">{{ $approvedUsers->count() }}</span>
+                    <span class="badge badge-success">{{ $approvedUsers->total() }}</span>
                 </h5>
             </div>
             <div class="card-body">
@@ -202,6 +203,7 @@
                         @endforelse
                     </tbody>
                 </table>
+                <x-pagination :paginator="$approvedUsers" pageName="approved" />
             </div>
         </div>
     </div>

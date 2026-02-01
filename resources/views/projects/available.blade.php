@@ -50,6 +50,8 @@
         </div>
     @endforelse
 </div>
+
+<x-pagination :paginator="$projects" />
 @endsection
 
 @push('head')

@@ -43,17 +43,9 @@
               <i class="fas fa-chart-line"></i>
               <span>Dashboard</span>
           </a>
-          <a href="{{ route('admin.traffic') }}" class="nav-item {{ request()->routeIs('admin.traffic') ? 'active' : '' }}">
-              <i class="fas fa-signal"></i>
-              <span>Tráfico</span>
-          </a>
           <a href="{{ route('admin.tools') }}" class="nav-item {{ request()->routeIs('admin.tools') ? 'active' : '' }}">
               <i class="fas fa-tools"></i>
               <span>Herramientas</span>
-          </a>
-          <a href="{{ route('admin.records') }}" class="nav-item {{ request()->routeIs('admin.records') ? 'active' : '' }}">
-              <i class="fas fa-database"></i>
-              <span>Registros</span>
           </a>
           <div class="nav-divider"></div>
           {{-- Opciones para usuarios normales --}}
@@ -62,9 +54,21 @@
               <i class="fas fa-folder"></i>
               <span>Mis Proyectos</span>
           </a>
+          <a href="{{ route('user.records') }}" class="nav-item {{ request()->routeIs('user.records') ? 'active' : '' }}">
+              <i class="fas fa-history"></i>
+              <span>Mis Registros</span>
+          </a>
           @endif
           {{-- Opciones solo para admin --}}
           @if(Auth::user()->isAdmin())
+          <a href="{{ route('admin.traffic') }}" class="nav-item {{ request()->routeIs('admin.traffic') ? 'active' : '' }}">
+              <i class="fas fa-signal"></i>
+              <span>Tráfico</span>
+          </a>
+          <a href="{{ route('admin.records') }}" class="nav-item {{ request()->routeIs('admin.records.*') ? 'active' : '' }}">
+              <i class="fas fa-database"></i>
+              <span>Registros</span>
+          </a>
           <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
               <i class="fas fa-users"></i>
               <span>Usuarios</span>
@@ -146,7 +150,7 @@
   {{-- Config global, sin hardcodear IP en JS --}}
   <script>
     window.ADMIN_CFG = {
-      nodeUrl: @json(config('services.realtime.node_url')),
+      nodeUrl: @json(config('services.node_backend.url')),
       tokenEndpoint: @json(url('/admin/socket-token')),
       page: @json(trim($__env->yieldContent('page_id'))),
     };
@@ -243,6 +247,33 @@
         if (menu.classList.contains('open')) {
           document.body.style.overflow = window.innerWidth <= 520 ? 'hidden' : '';
         }
+      });
+    })();
+  </script>
+
+  {{-- Pagination Script --}}
+  <script>
+    (function() {
+      document.addEventListener('DOMContentLoaded', function() {
+        // Handle per-page select change
+        document.querySelectorAll('[data-per-page-select]').forEach(function(select) {
+          select.addEventListener('change', function(e) {
+            const wrapper = e.target.closest('[data-pagination]');
+            if (!wrapper) return;
+
+            const pageName = wrapper.dataset.pageName || 'page';
+            const perPageParam = pageName === 'page' ? 'per_page' : 'per_page_' + pageName;
+
+            const url = new URL(window.location.href);
+            url.searchParams.set(perPageParam, e.target.value);
+            url.searchParams.set(pageName, '1'); // Reset to page 1
+
+            // Show loading state
+            wrapper.classList.add('loading');
+
+            window.location.href = url.toString();
+          });
+        });
       });
     })();
   </script>

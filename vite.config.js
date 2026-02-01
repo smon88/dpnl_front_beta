@@ -14,7 +14,7 @@ export default defineConfig({
         host: true, 
         port: 5174,
         strictPort: true,
-        hmr: { host: '192.168.18.120' },
+        hmr: { host: process.env.VITE_HMR_HOST || 'localhost' },
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },

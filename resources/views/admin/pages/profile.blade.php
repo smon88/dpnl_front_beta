@@ -242,15 +242,6 @@
                             </span>
                         </div>
                     </div>
-                    <div class="info-row">
-                        <div class="info-icon">
-                            <i class="fas fa-fingerprint"></i>
-                        </div>
-                        <div class="info-content">
-                            <span class="info-label">ID de usuario</span>
-                            <span class="info-value mono">{{ Auth::user()->id }}</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>

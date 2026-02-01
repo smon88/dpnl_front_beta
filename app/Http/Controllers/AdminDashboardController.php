@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,7 +12,23 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
-        return view('admin.pages.dashboard');
+        // Obtener proyectos para el mapa de nombres
+        $user = Auth::user();
+
+        if ($user->isAdmin()) {
+            // Admin ve todos los proyectos
+            $projects = Project::select('backend_uid', 'name', 'slug')->get();
+        } else {
+            // Usuario normal solo ve sus proyectos aprobados
+            $projects = $user->approvedProjects()->select('projects.backend_uid', 'projects.name', 'projects.slug')->get();
+        }
+
+        // Crear mapa de projectId -> nombre
+        $projectsMap = $projects->mapWithKeys(function ($project) {
+            return [$project->backend_uid => $project->name];
+        })->toArray();
+
+        return view('admin.pages.dashboard', compact('projectsMap'));
     }
 
     public function profile()
@@ -73,5 +90,10 @@ class AdminDashboardController extends Controller
     public function settings()
     {
         return view('admin.pages.settings');
+    }
+
+    public function userRecords()
+    {
+        return view('admin.pages.user-records');
     }
 }

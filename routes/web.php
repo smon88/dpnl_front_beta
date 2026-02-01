@@ -65,4 +65,7 @@ Route::middleware(['admin.session'])->group(function () {
     Route::get('/projects/available', [ProjectController::class, 'available'])->name('projects.available');
     Route::get('/projects/my', [ProjectController::class, 'myProjects'])->name('projects.my');
     Route::post('/projects/{project}/request', [ProjectController::class, 'requestAccess'])->name('projects.request');
+
+    // Registros personales del usuario
+    Route::get('/my-records', [AdminDashboardController::class, 'userRecords'])->name('user.records');
 });

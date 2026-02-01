@@ -14,9 +14,20 @@ class UserController extends Controller
         private NodeBackendService $nodeBackend
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::orderBy('created_at', 'desc')->get();
+        $perPage = $request->get('per_page', 15);
+        $perPage = in_array($perPage, [10, 15, 25, 50]) ? $perPage : 15;
+
+        $users = User::orderBy('created_at', 'desc')->paginate($perPage);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'html' => view('users._table', compact('users'))->render(),
+                'pagination' => view('components.pagination', ['paginator' => $users])->render(),
+            ]);
+        }
+
         return view('users.index', compact('users'));
     }
 
