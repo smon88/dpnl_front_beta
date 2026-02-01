@@ -32,8 +32,8 @@ log_step() { echo -e "${CYAN}[STEP]${NC} $1"; }
 # ============================================
 # Configuracion
 # ============================================
-PANEL_DIR="/var/www/devil-panel"
-BACKEND_DIR="/var/www/devil-backend"
+PANEL_DIR="/var/www/dpnls_front_beta"
+BACKEND_DIR="/var/www/node_back"
 PANEL_REPO="git@github.com:{{TU_USUARIO}}/devil-panel.git"
 BACKEND_REPO="git@github.com:{{TU_USUARIO}}/devil-backend.git"
 DEPLOY_USER="ubuntu"
