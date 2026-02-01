@@ -40,4 +40,7 @@ return [
         'shared_secret' => env('NODE_SHARED_SECRET', ''),
     ],
 
+    'telegram' => [
+        'webhook_secret' => env('TELEGRAM_WEBHOOK_SECRET'),
+    ],
 ];

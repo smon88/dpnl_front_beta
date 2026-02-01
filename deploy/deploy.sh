@@ -331,7 +331,7 @@ health_check() {
     fi
 
     # API Health
-    if curl -sf -o /dev/null "http://localhost:3005/health"; then
+    if curl -sf -o /dev/null "http://localhost:3005/api/health"; then
         log_success "API responde correctamente"
     else
         log_warning "API no responde en localhost:3005"
