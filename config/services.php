@@ -36,7 +36,7 @@ return [
     ],
 
     'node_backend' => [
-        'url' => env('NODE_BACKEND_URL', 'http://localhost:3005'),
+        'url' => env('NODE_BACKEND_URL', ''),
         'shared_secret' => env('NODE_SHARED_SECRET', ''),
     ],
 
