@@ -80,10 +80,10 @@
                     />
                 </div>
 
-                <button type="submit" class="login-btn">
+            <!--     <button type="submit" class="login-btn">
                     <i class="fas fa-check-circle"></i>
                     Verificar Codigo
-                </button>
+                </button> -->
             </form>
 
             <div class="otp-actions">
