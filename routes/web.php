@@ -14,13 +14,13 @@ Route::get('/', function () {
 // LOGIN ADMIN con 2FA
 Route::get('/admin/login', [AdminAuthController::class, 'show'])->name('admin.login');
 Route::post('/admin/login', [AdminAuthController::class, 'login'])
-    ->middleware('throttle:5,1')
+    ->middleware('throttle:10,1')
     ->name('admin.login.submit');
 
 // OTP (paso 2 del login)
 Route::get('/admin/login/otp', [AdminAuthController::class, 'showOtpForm'])->name('admin.login.otp');
 Route::post('/admin/login/otp', [AdminAuthController::class, 'verifyOtp'])
-    ->middleware('throttle:3,1')
+    ->middleware('throttle:30,1')
     ->name('admin.login.otp.submit');
 
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
