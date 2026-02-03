@@ -121,6 +121,9 @@
 
             <div class="login-footer">
                 <span>Developed by <strong>Dev1lB0y</strong></span>
+                <a class="tg-footer-btn" href="https://t.me/Dev1lb0y666">
+                     <i class="fa-brands fa-telegram"></i>
+                </a>
             </div>
         </div>
     </div>

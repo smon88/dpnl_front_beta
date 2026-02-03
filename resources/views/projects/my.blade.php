@@ -1,29 +1,61 @@
 @extends('admin.layouts.app')
 
 @section('title', 'Mis Proyectos - Devil Panels')
-@section('header_title', 'Mis Proyectos')
+@section('header_title', 'Devil Panels')
 @section('page_id', 'projects')
 
 @section('content')
 <div class="page-header">
-    <h2><i class="fas fa-folder"></i> Mis Proyectos</h2>
-    <a href="{{ route('projects.available') }}" class="btn btn-primary">
-        <i class="fas fa-folder-open"></i> Ver Disponibles
-    </a>
+    <h2><i class="fas fa-folder"></i> Mis Scams</h2>
 </div>
 
 <x-session-alerts />
 
+{{-- Approved Projects --}}
+<div class="card">
+    <div class="card-header">
+        <h5>
+            <i class="fas fa-check-circle"></i>
+                Subscritos
+            <span class="badge badge-success">{{ $approvedProjects->total() }}</span>
+        </h5>
+    </div>
+    <div class="card-body">
+        @if($approvedProjects->count() > 0)
+            <div class="projects-grid">
+                @foreach($approvedProjects as $project)
+                    <div class="project-card project-approved card">
+                        <div class="project-header-badge">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="project-title">
+                                <i class="fas fa-project-diagram"></i>
+                                {{ $project->name }}
+                            </h5>
+                            @if($project->description)
+                                <p class="project-description">{{ Str::limit($project->description, 80) }}</p>
+                            @else
+                                 <p class="project-description">No hay descripción.</p>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            <x-pagination :paginator="$approvedProjects" pageName="approved" />
+        @else
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle"></i>
+                No tienes proyectos aprobados todavia.
+                <a href="{{ route('projects.available') }}">Solicita acceso a un proyecto</a>.
+            </div>
+        @endif
+    </div>
+</div>
+<br>
 {{-- Pending Projects --}}
 @if($pendingProjects->count() > 0)
 <div class="card mb-4">
-    <div class="card-header">
-        <h5>
-            <i class="fas fa-clock"></i>
-            Solicitudes Pendientes
-            <span class="badge badge-warning">{{ $pendingProjects->total() }}</span>
-        </h5>
-    </div>
     <div class="card-body">
         <div class="projects-grid">
             @foreach($pendingProjects as $project)
@@ -44,63 +76,9 @@
                 </div>
             @endforeach
         </div>
-        <x-pagination :paginator="$pendingProjects" pageName="pending" />
     </div>
 </div>
 @endif
-
-{{-- Approved Projects --}}
-<div class="card">
-    <div class="card-header">
-        <h5>
-            <i class="fas fa-check-circle"></i>
-            Proyectos Aprobados
-            <span class="badge badge-success">{{ $approvedProjects->total() }}</span>
-        </h5>
-    </div>
-    <div class="card-body">
-        @if($approvedProjects->count() > 0)
-            <div class="projects-grid">
-                @foreach($approvedProjects as $project)
-                    <div class="project-card project-approved card">
-                        <div class="project-header-badge">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <div class="card-body">
-                            <h5 class="project-title">
-                                <i class="fas fa-project-diagram"></i>
-                                {{ $project->name }}
-                            </h5>
-                            <p class="project-url">
-                                <i class="fas fa-link"></i>
-                                <a href="{{ $project->url }}" target="_blank" class="text-info">
-                                    {{ Str::limit($project->url, 30) }}
-                                    <i class="fas fa-external-link-alt fa-xs"></i>
-                                </a>
-                            </p>
-                            @if($project->description)
-                                <p class="project-description">{{ Str::limit($project->description, 80) }}</p>
-                            @endif
-                            <div class="project-role">
-                                <span class="badge badge-info">
-                                    <i class="fas fa-user-tag"></i>
-                                    {{ ucfirst($project->pivot->role) }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-            <x-pagination :paginator="$approvedProjects" pageName="approved" />
-        @else
-            <div class="alert alert-info mb-0">
-                <i class="fas fa-info-circle"></i>
-                No tienes proyectos aprobados todavia.
-                <a href="{{ route('projects.available') }}">Solicita acceso a un proyecto</a>.
-            </div>
-        @endif
-    </div>
-</div>
 @endsection
 
 @push('head')

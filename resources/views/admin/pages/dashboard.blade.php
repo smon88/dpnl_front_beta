@@ -13,7 +13,7 @@
   <div class="wrap">
     <div class="card">
       <div class="cardHeader">
-        <h2>Sesiones</h2>
+        <h2>Registros</h2>
         <!-- <div class="search">
           <span style="opacity:.7;font-size:12px;">🔎</span>
           <input id="q" placeholder="Buscar por id/user/estado..." />

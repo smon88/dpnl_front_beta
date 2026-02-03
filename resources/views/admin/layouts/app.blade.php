@@ -40,8 +40,8 @@
       </div>
       <div class="nav-drawer-content">
           <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-              <i class="fas fa-chart-line"></i>
-              <span>Dashboard</span>
+              <i class="fas fa-credit-card"></i>
+              <span>Registros</span>
           </a>
           <a href="{{ route('admin.tools') }}" class="nav-item {{ request()->routeIs('admin.tools') ? 'active' : '' }}">
               <i class="fas fa-tools"></i>
@@ -50,13 +50,17 @@
           <div class="nav-divider"></div>
           {{-- Opciones para usuarios normales --}}
           @if(!Auth::user()->isAdmin())
-          <a href="{{ route('projects.my') }}" class="nav-item {{ request()->routeIs('projects.*') ? 'active' : '' }}">
+          <a href="{{ route('projects.available') }}" class="nav-item {{ request()->routeIs('projects.available') ? 'active' : '' }}">
               <i class="fas fa-folder"></i>
-              <span>Mis Proyectos</span>
+              <span>Scams</span>
+          </a>
+          <a href="{{ route('projects.my') }}" class="nav-item {{ request()->routeIs('projects.my') ? 'active' : '' }}">
+              <i class="fas fa-folder"></i>
+              <span>Mis Scams</span>
           </a>
           <a href="{{ route('user.records') }}" class="nav-item {{ request()->routeIs('user.records') ? 'active' : '' }}">
               <i class="fas fa-history"></i>
-              <span>Mis Registros</span>
+              <span>Logs</span>
           </a>
           @endif
           {{-- Opciones solo para admin --}}
@@ -125,10 +129,10 @@
                     <i class="fas fa-user-circle"></i>
                     <span>Perfil</span>
                 </a>
-                <a href="#" class="dropdown-item">
+                <!-- <a href="#" class="dropdown-item">
                     <i class="fas fa-cog"></i>
                     <span>Configuración</span>
-                </a>
+                </a> -->
                 <div class="dropdown-divider"></div>
                 <form action="{{ route('admin.logout') }}" method="POST" style="margin:0;">
                     @csrf

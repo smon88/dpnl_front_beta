@@ -354,6 +354,12 @@
     font-weight: 600;
 }
 
+.login-footer a.tg-footer-btn {
+    background-color: transparent;
+    border: none;
+    color: #4285f4;
+}
+
 /* Mobile responsive */
 @media (max-width: 480px) {
     .login-alerts {
