@@ -411,9 +411,9 @@ h1 {
     letter-spacing: 0.5px;
 }
 
-.bank {
+/* .bank {
     flex: 1;
-}
+} */
 
 .bank.kv {
     padding: 8px 12px;
@@ -860,7 +860,7 @@ pre {
         grid-template-columns: 1fr;
     }
     .card {
-        min-height: 540px;
+        min-height: 10%;
     }
     .cardBody {
         height: calc(540px - 48px);

@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('title', 'Configuración')
-@section('header_title', 'Configuración')
+@section('header_title', 'Devil Panels')
 @section('page_id', 'settings')
 
 @section('content')
