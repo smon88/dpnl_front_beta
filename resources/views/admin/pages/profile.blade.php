@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Mi Perfil')
-@section('header_title', 'Mi Perfil')
+@section('title', 'Perfil')
+@section('header_title', 'Devil Panels')
 @section('page_id', 'profile')
 
 @section('content')

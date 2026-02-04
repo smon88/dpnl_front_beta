@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('title', 'Herramientas')
-@section('header_title', 'Herramientas')
+@section('header_title', 'Devil Panels')
 @section('page_id', 'tools')
 
 @section('content')

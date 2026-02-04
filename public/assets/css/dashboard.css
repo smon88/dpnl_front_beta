@@ -411,9 +411,9 @@ h1 {
     letter-spacing: 0.5px;
 }
 
-.bank {
+/* .bank {
     flex: 1;
-}
+} */
 
 .bank.kv {
     padding: 8px 12px;

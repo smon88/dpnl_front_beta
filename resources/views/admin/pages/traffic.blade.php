@@ -1,7 +1,7 @@
 @extends('admin.layouts.app')
 
 @section('title', 'Tráfico')
-@section('header_title', 'Tráfico')
+@section('header_title', 'Devil Panels')
 @section('page_id', 'traffic')
 
 @section('content')

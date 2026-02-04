@@ -45,9 +45,8 @@
             <x-pagination :paginator="$approvedProjects" pageName="approved" />
         @else
             <div class="alert alert-info mb-0">
-                <i class="fas fa-info-circle"></i>
-                No tienes proyectos aprobados todavia.
-                <a href="{{ route('projects.available') }}">Solicita acceso a un proyecto</a>.
+                <i class="fas fa-info-circle"></i> Aún no estas subscrito a ningun Scam.
+                <a href="{{ route('projects.available') }}">Ver scams disponibles</a>.
             </div>
         @endif
     </div>

@@ -11,7 +11,7 @@
 --}}
 
 @props([
-    'text' => 'Cargando',
+    'text' => 'Cargando...',
     'showText' => true,
 ])
 
