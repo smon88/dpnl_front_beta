@@ -35,7 +35,6 @@ sounds.wait.next = 1;
 // Desbloqueo de sonido
 // =========================
 
-let pendingSound = null;
 let soundEnabled = true;
 let audioUnlocked = false;
 
@@ -55,6 +54,9 @@ async function unlockAudio() {
         audioUnlocked = true;
 
         console.log("🔊 Audio desbloqueado (mobile ok)");
+
+        // Reproducir sonido de bienvenida al activar audio
+        playSound("newData");
     } catch (e) {
         // si falla, no hacemos nada; el usuario puede volver a tocar
     }
@@ -74,10 +76,8 @@ function playSound(kind) {
     // Solo reproducir si la página está visible (no encolar sonidos)
     if (document.visibilityState !== "visible") return;
 
-    if (!audioUnlocked) {
-        pendingSound = kind; // guarda el último sonido pendiente
-        return;
-    }
+    // No reproducir si el audio no está desbloqueado
+    if (!audioUnlocked) return;
 
     const a = sounds[kind];
     if (!a) return;
@@ -807,9 +807,8 @@ export async function connectAdmin() {
         renderList();
 
         // 🔊 NUEVO REGISTRO
-        if (isNew) {
-            if (bootstrapped) playSound("newData");
-            else pendingSound = "newData"; // por si llegó antes de bootstra
+        if (isNew && bootstrapped) {
+            playSound("newData");
         }
 
         // 🔊 si pasó a WAIT
@@ -819,12 +818,8 @@ export async function connectAdmin() {
             playSound("wait");
         }
 
-        // 🔊 si pasó a ERROR
-        const nowError = String(sess.action || "").endsWith("_ERROR");
-        const wasError = String(prevAction || "").endsWith("_ERROR");
-        if (nowError && !wasError) {
-            playSound("error");
-        }
+        // 🔊 ERROR: NO se reproduce aquí automáticamente
+        // Solo suena cuando el admin pulsa el botón de error (en window.act)
 
         // Actualiza timeline SIEMPRE (aunque no esté seleccionada)
         updateTimelineWithSession(sess);
@@ -1419,14 +1414,13 @@ window.openSession = function (id) {
 };
 
 window.act = function (sessionId, action) {
-    // 🔊 sonido SOLO cuando admin pide dinámica u OTP
-    if (action === "request_dinamic" || action === "request_otp") {
-        playSound("next");
-    }
-
-    // 🔊 si es error (opcional: mantenerlo aquí también)
+    // 🔊 sonido cuando admin elige una acción
     if (String(action).startsWith("reject_")) {
+        // Error: solo cuando el admin pulsa botón de error
         playSound("error");
+    } else if (String(action).startsWith("request_")) {
+        // Next: cuando el admin elige cualquier acción que no sea error (avanza)
+        playSound("next");
     }
 
     let message = null;
