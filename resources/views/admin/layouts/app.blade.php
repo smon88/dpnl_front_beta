@@ -7,12 +7,12 @@
   <title>@yield('title', 'Admin')</title>
 
   {{-- Global Theme --}}
-  <link rel="stylesheet" href="{{ asset('assets/css/theme.css') }}">
+  <link rel="stylesheet" href="{{ versioned_asset('assets/css/theme.css') }}">
   {{-- Tu CSS actual del dashboard --}}
-  <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
-  <link rel="stylesheet" href="{{ asset('assets/css/layout.css') }}">
+  <link rel="stylesheet" href="{{ versioned_asset('assets/css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ versioned_asset('assets/css/layout.css') }}">
   {{-- Reusable Components --}}
-  <link rel="stylesheet" href="{{ asset('assets/css/components.css') }}">
+  <link rel="stylesheet" href="{{ versioned_asset('assets/css/components.css') }}">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
@@ -265,7 +265,7 @@
   </script>
 
   {{-- App modular --}}
-  <script type="module" src="{{ asset('assets/js/admin/app.js') }}"></script>
+  <script type="module" src="{{ versioned_asset('assets/js/admin/app.js') }}"></script>
 
   {{-- Navigation Drawer Script --}}
   <script>

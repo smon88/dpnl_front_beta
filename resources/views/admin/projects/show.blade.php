@@ -211,7 +211,7 @@
 @endsection
 
 @push('head')
-<link rel="stylesheet" href="{{ asset('assets/css/projects.css') }}">
+<link rel="stylesheet" href="{{ versioned_asset('assets/css/projects.css') }}">
 <style>
     .project-info code {
         background: rgba(230, 57, 70, 0.15);

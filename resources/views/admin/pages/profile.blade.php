@@ -271,8 +271,8 @@
 @endsection
 
 @push('head')
-<link rel="stylesheet" href="{{ asset('assets/css/users.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/profile.css') }}">
+<link rel="stylesheet" href="{{ versioned_asset('assets/css/users.css') }}">
+<link rel="stylesheet" href="{{ versioned_asset('assets/css/profile.css') }}">
 @endpush
 
 @push('scripts')

@@ -73,7 +73,7 @@
 @endsection
 
 @push('head')
-<link rel="stylesheet" href="{{ asset('assets/css/projects.css') }}">
+<link rel="stylesheet" href="{{ versioned_asset('assets/css/projects.css') }}">
 <style>
     .project-id {
         font-family: 'JetBrains Mono', 'Fira Code', monospace;
