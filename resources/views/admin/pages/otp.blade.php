@@ -85,6 +85,14 @@
             </form>
 
             <div class="otp-actions">
+                <form method="POST" action="{{ route('admin.login.otp.resend') }}" id="resendForm" style="display: inline;">
+                    @csrf
+                    <button type="submit" id="resendBtn" class="resend-link" disabled>
+                        <i class="fas fa-sync-alt"></i>
+                        <span id="resendText">Reenviar codigo</span>
+                    </button>
+                </form>
+                <span id="resendCounter" class="resend-counter"></span>
                 <a href="{{ route('admin.login') }}" class="back-link">
                     <i class="fas fa-arrow-left"></i>
                     Volver al login
@@ -97,8 +105,50 @@
         </div>
     </div>
 
+    <style>
+        .otp-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+            margin-top: 16px;
+        }
+        .resend-link {
+            background: none;
+            border: none;
+            color: var(--text-secondary, #8b949e);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .resend-link:hover:not(:disabled) {
+            color: var(--text-primary, #c9d1d9);
+            background: var(--bg-secondary, rgba(255,255,255,0.05));
+        }
+        .resend-link:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .resend-link i {
+            transition: transform 0.3s ease;
+        }
+        .resend-link:not(:disabled):hover i {
+            transform: rotate(180deg);
+        }
+        .resend-counter {
+            font-size: 12px;
+            color: var(--text-muted, #6e7681);
+        }
+    </style>
+
     <script>
         const TIMEOUT_LOCKOUT_DURATION = 30000; // 30 segundos de bloqueo
+        const RESEND_COOLDOWN = 30; // 30 segundos entre reenvíos
 
         // Toast notification function
         function showToast(type, title, message, duration = 5000) {
@@ -211,6 +261,88 @@
                 alert.style.animation = 'alertSlideOut 0.3s ease-in forwards';
                 setTimeout(() => alert.remove(), 300);
             }
+        })();
+
+        // Resend OTP functionality
+        (function() {
+            const resendBtn = document.getElementById('resendBtn');
+            const resendText = document.getElementById('resendText');
+            const resendCounter = document.getElementById('resendCounter');
+            const resendForm = document.getElementById('resendForm');
+
+            let cooldownRemaining = RESEND_COOLDOWN;
+            let cooldownInterval = null;
+
+            // Cargar estado de cooldown de localStorage
+            const savedCooldownEnd = localStorage.getItem('otp_resend_cooldown_end');
+            if (savedCooldownEnd) {
+                const remaining = Math.ceil((parseInt(savedCooldownEnd) - Date.now()) / 1000);
+                if (remaining > 0) {
+                    cooldownRemaining = remaining;
+                    startCooldown();
+                } else {
+                    localStorage.removeItem('otp_resend_cooldown_end');
+                    enableResendBtn();
+                }
+            } else {
+                enableResendBtn();
+            }
+
+            function startCooldown() {
+                resendBtn.disabled = true;
+                updateCooldownUI();
+
+                cooldownInterval = setInterval(() => {
+                    cooldownRemaining--;
+                    updateCooldownUI();
+
+                    if (cooldownRemaining <= 0) {
+                        clearInterval(cooldownInterval);
+                        localStorage.removeItem('otp_resend_cooldown_end');
+                        enableResendBtn();
+                    }
+                }, 1000);
+            }
+
+            function updateCooldownUI() {
+                resendText.textContent = `Espera ${cooldownRemaining}s`;
+            }
+
+            function enableResendBtn() {
+                resendBtn.disabled = false;
+                resendText.textContent = 'Reenviar codigo';
+            }
+
+            // Manejar submit del form
+            resendForm.addEventListener('submit', function(e) {
+                if (resendBtn.disabled) {
+                    e.preventDefault();
+                    return;
+                }
+
+                // Guardar cooldown en localStorage
+                cooldownRemaining = RESEND_COOLDOWN;
+                localStorage.setItem('otp_resend_cooldown_end', Date.now() + (RESEND_COOLDOWN * 1000));
+                startCooldown();
+            });
+
+            // Obtener intentos restantes al cargar
+            fetch('{{ route("admin.login.otp.attempts") }}')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.remaining !== undefined) {
+                        resendCounter.textContent = `(${data.remaining} de 5 restantes)`;
+                        if (data.remaining <= 0) {
+                            resendBtn.disabled = true;
+                            const minutes = Math.ceil(data.availableIn / 60);
+                            resendText.textContent = `Sin reenvios`;
+                            resendCounter.textContent = `(disponible en ${minutes} min)`;
+                        }
+                    }
+                })
+                .catch(() => {
+                    // Silently fail
+                });
         })();
     </script>
 </body>

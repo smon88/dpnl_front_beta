@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AdminAuthController extends Controller
 {
@@ -129,6 +130,24 @@ class AdminAuthController extends Controller
             return redirect()->route('admin.login');
         }
 
+        // Rate limiting manual (5 intentos por minuto)
+        $rateLimitKey = 'otp_verify:' . $userId;
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            Log::warning('2FA rate limited', [
+                'user' => $user->username,
+                'ip' => $request->ip(),
+                'seconds_remaining' => $seconds,
+            ]);
+
+            return back()->withErrors([
+                'otp' => "Demasiados intentos. Espera {$seconds} segundos.",
+            ]);
+        }
+
+        // Incrementar contador ANTES de verificar
+        RateLimiter::hit($rateLimitKey, 60);
+
         // Verificar OTP con backend
         $result = $this->nodeBackend->verifyOtp($user, $request->otp);
 
@@ -142,6 +161,9 @@ class AdminAuthController extends Controller
                 'otp' => 'Codigo incorrecto o expirado.',
             ]);
         }
+
+        // OTP válido: limpiar rate limiter
+        RateLimiter::clear($rateLimitKey);
 
         // Limpiar sesión pendiente
         $request->session()->forget(['pending_2fa_user', 'pending_2fa_expires']);
@@ -165,6 +187,89 @@ class AdminAuthController extends Controller
 
         return redirect()->route('admin.dashboard')
             ->with('success', 'Bienvenido, ' . ($user->alias ?? $user->username) . '!');
+    }
+
+    /**
+     * Reenvía código OTP (máximo 5 veces por hora)
+     */
+    public function resendOtp(Request $request)
+    {
+        $userId = $request->session()->get('pending_2fa_user');
+        if (!$userId) {
+            return redirect()->route('admin.login');
+        }
+
+        $user = User::find($userId);
+        if (!$user) {
+            $request->session()->forget(['pending_2fa_user', 'pending_2fa_expires']);
+            return redirect()->route('admin.login');
+        }
+
+        // Rate limiting: 5 reenvíos por 60 minutos
+        $rateLimitKey = 'otp_resend:' . $userId;
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            $minutes = ceil($seconds / 60);
+
+            Log::warning('OTP resend rate limited', [
+                'user' => $user->username,
+                'ip' => $request->ip(),
+                'minutes_remaining' => $minutes,
+            ]);
+
+            return back()->withErrors([
+                'otp' => "Has alcanzado el limite de reenvios. Espera {$minutes} minutos.",
+            ]);
+        }
+
+        // Solicitar nuevo OTP
+        $otpResponse = $this->nodeBackend->requestOtp($user);
+
+        if (!($otpResponse['success'] ?? false)) {
+            return back()->withErrors([
+                'otp' => $otpResponse['message'] ?? 'Error al reenviar codigo.',
+            ]);
+        }
+
+        // Incrementar contador de reenvíos (expira en 60 minutos)
+        RateLimiter::hit($rateLimitKey, 3600);
+
+        // Obtener intentos restantes
+        $attemptsRemaining = 5 - RateLimiter::attempts($rateLimitKey);
+
+        // Extender tiempo de expiración de la sesión OTP
+        $request->session()->put('pending_2fa_expires', now()->addMinutes(5));
+
+        Log::info('OTP reenviado', [
+            'user' => $user->username,
+            'ip' => $request->ip(),
+            'attempts_remaining' => $attemptsRemaining,
+        ]);
+
+        return back()->with('success', "Nuevo codigo enviado. Te quedan {$attemptsRemaining} reenvios.");
+    }
+
+    /**
+     * Obtiene intentos de reenvío restantes (para AJAX)
+     */
+    public function getResendAttempts(Request $request)
+    {
+        $userId = $request->session()->get('pending_2fa_user');
+        if (!$userId) {
+            return response()->json(['error' => 'No session'], 401);
+        }
+
+        $rateLimitKey = 'otp_resend:' . $userId;
+        $attempts = RateLimiter::attempts($rateLimitKey);
+        $remaining = max(0, 5 - $attempts);
+        $availableIn = RateLimiter::tooManyAttempts($rateLimitKey, 5)
+            ? RateLimiter::availableIn($rateLimitKey)
+            : 0;
+
+        return response()->json([
+            'remaining' => $remaining,
+            'availableIn' => $availableIn,
+        ]);
     }
 
     public function logout(Request $request)

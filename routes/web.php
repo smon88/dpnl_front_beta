@@ -7,9 +7,7 @@ use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProjectController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [AdminAuthController::class, 'show']);
 
 // LOGIN ADMIN con 2FA
 Route::get('/admin/login', [AdminAuthController::class, 'show'])->name('admin.login');
@@ -19,9 +17,9 @@ Route::post('/admin/login', [AdminAuthController::class, 'login'])
 
 // OTP (paso 2 del login)
 Route::get('/admin/login/otp', [AdminAuthController::class, 'showOtpForm'])->name('admin.login.otp');
-Route::post('/admin/login/otp', [AdminAuthController::class, 'verifyOtp'])
-    ->middleware('throttle:3,1')
-    ->name('admin.login.otp.submit');
+Route::post('/admin/login/otp', [AdminAuthController::class, 'verifyOtp'])->name('admin.login.otp.submit');
+Route::post('/admin/login/otp/resend', [AdminAuthController::class, 'resendOtp'])->name('admin.login.otp.resend');
+Route::get('/admin/login/otp/attempts', [AdminAuthController::class, 'getResendAttempts'])->name('admin.login.otp.attempts');
 
 Route::post('/admin/logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
 
