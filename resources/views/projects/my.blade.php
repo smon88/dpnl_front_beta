@@ -38,6 +38,10 @@
                             @else
                                  <p class="project-description">No hay descripción.</p>
                             @endif
+                            <p class="project-url">
+                                <i class="fas fa-link"></i>
+                                {{ Str::limit($project->url, 30) }}
+                            </p>
                         </div>
                     </div>
                 @endforeach

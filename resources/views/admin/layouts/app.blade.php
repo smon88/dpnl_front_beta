@@ -264,20 +264,8 @@
     };
   </script>
 
-  {{-- Import map para cache busting de módulos JS --}}
-  @php
-    $jsVersion = filemtime(public_path('assets/js/dashboard.js'));
-  @endphp
-  <script type="importmap">
-  {
-    "imports": {
-      "../../js/dashboard.js": "/assets/js/dashboard.js?v={{ $jsVersion }}"
-    }
-  }
-  </script>
-
-  {{-- App modular --}}
-  <script type="module" src="{{ versioned_asset('assets/js/admin/app.js') }}"></script>
+  {{-- Admin App (Vite) --}}
+  @vite('resources/js/admin/app.js')
 
   {{-- Navigation Drawer Script --}}
   <script>
