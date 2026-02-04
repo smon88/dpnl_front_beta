@@ -13,6 +13,9 @@
 </head>
 
 <body>
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
     <div class="login-container">
         <div class="login-card">
             <div class="login-header">
@@ -95,6 +98,85 @@
     </div>
 
     <script>
+        const TIMEOUT_LOCKOUT_DURATION = 30000; // 30 segundos de bloqueo
+
+        // Toast notification function
+        function showToast(type, title, message, duration = 5000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+
+            toast.innerHTML = `
+                <i class="fas ${icons[type]} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.parentElement.classList.add('toast-exit'); setTimeout(() => this.parentElement.remove(), 200);">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('toast-exit');
+                setTimeout(() => toast.remove(), 200);
+            }, duration);
+        }
+
+        // Disable input during timeout
+        function lockInputForTimeout(seconds) {
+            const otpInput = document.getElementById('otp');
+            const label = document.querySelector('label[for="otp"]');
+
+            otpInput.disabled = true;
+            otpInput.style.opacity = '0.5';
+            otpInput.style.cursor = 'not-allowed';
+
+            let remaining = seconds;
+            const originalLabelHTML = label.innerHTML;
+
+            const countdown = setInterval(() => {
+                label.innerHTML = `<i class="fas fa-clock"></i> Espera ${remaining}s para reintentar`;
+                remaining--;
+
+                if (remaining < 0) {
+                    clearInterval(countdown);
+                    otpInput.disabled = false;
+                    otpInput.style.opacity = '1';
+                    otpInput.style.cursor = '';
+                    otpInput.value = '';
+                    label.innerHTML = originalLabelHTML;
+                    otpInput.focus();
+                    showToast('info', 'Listo', 'Ya puedes ingresar el codigo nuevamente', 3000);
+                }
+            }, 1000);
+        }
+
+        // Check for timeout errors on page load
+        (function checkTimeoutErrors() {
+            const alerts = document.querySelectorAll('.login-alerts .alert-error');
+            const timeoutKeywords = ['timeout', 'tiempo', 'espera', 'demasiados intentos', 'bloqueado', 'limite', 'muchos intentos'];
+
+            alerts.forEach(alert => {
+                const message = alert.textContent.toLowerCase();
+                const isTimeout = timeoutKeywords.some(keyword => message.includes(keyword));
+
+                if (isTimeout) {
+                    showToast('warning', 'Demasiados intentos', 'Por favor espera antes de intentar nuevamente', TIMEOUT_LOCKOUT_DURATION);
+                    lockInputForTimeout(TIMEOUT_LOCKOUT_DURATION / 1000);
+                }
+            });
+        })();
+
         // Auto-format OTP input (only numbers)
         const otpInput = document.getElementById('otp');
         otpInput.addEventListener('input', function(e) {
@@ -103,7 +185,7 @@
 
         // Auto-submit when 6 digits are entered
         otpInput.addEventListener('keyup', function(e) {
-            if (this.value.length === 6) {
+            if (this.value.length === 6 && !this.disabled) {
                 // Small delay to show the complete code
                 setTimeout(() => {
                     this.form.submit();

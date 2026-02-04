@@ -98,4 +98,23 @@ window.Toast = (function() {
 
     return { show, success, error, warning, info };
 })();
+
+// Auto-show session flash messages as toasts
+document.addEventListener('DOMContentLoaded', function() {
+    @if(session('success'))
+        Toast.success(@json(session('success')), 'Exito');
+    @endif
+
+    @if(session('error'))
+        Toast.error(@json(session('error')), 'Error');
+    @endif
+
+    @if(session('warning'))
+        Toast.warning(@json(session('warning')), 'Aviso');
+    @endif
+
+    @if(session('info'))
+        Toast.info(@json(session('info')), 'Info');
+    @endif
+});
 </script>

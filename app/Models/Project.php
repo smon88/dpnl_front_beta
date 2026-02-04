@@ -14,6 +14,7 @@ class Project extends Model
         'name',
         'url',
         'description',
+        'logo_url',
         'backend_uid',
         'is_active',
     ];

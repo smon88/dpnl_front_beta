@@ -26,6 +26,110 @@
   {{-- Toast Notifications Container --}}
   <x-toast-container />
 
+  {{-- Error Handler for Session/Token Expiration & Rate Limiting --}}
+  <script>
+    (function() {
+      const RATE_LIMIT_LOCKOUT = 30000; // 30 segundos de bloqueo por rate limit
+      let rateLimitedUntil = 0;
+
+      // Interceptar errores de fetch para mostrar toast y redirigir
+      const originalFetch = window.fetch;
+      window.fetch = async function(...args) {
+        try {
+          const response = await originalFetch.apply(this, args);
+
+          // Verificar errores de sesión/token
+          if (response.status === 419 || response.status === 401) {
+            handleSessionError(response.status);
+            return response;
+          }
+
+          // Verificar error de rate limiting (429 Too Many Requests)
+          if (response.status === 429) {
+            handleRateLimitError(response);
+            return response;
+          }
+
+          return response;
+        } catch (error) {
+          throw error;
+        }
+      };
+
+      // Manejar errores de sesión
+      function handleSessionError(status) {
+        const messages = {
+          419: {
+            title: 'Sesión Expirada',
+            message: 'Tu sesión ha expirado. Redirigiendo al inicio...'
+          },
+          401: {
+            title: 'No Autorizado',
+            message: 'Tu sesión no es válida. Redirigiendo al inicio...'
+          }
+        };
+
+        const config = messages[status] || messages[419];
+
+        // Mostrar toast si está disponible
+        if (window.Toast) {
+          Toast.show({
+            type: 'warning',
+            title: config.title,
+            message: config.message,
+            duration: 3000,
+            dismissible: false
+          });
+        }
+
+        // Redirigir después de mostrar el toast
+        setTimeout(function() {
+          window.location.href = '{{ route("admin.login") }}';
+        }, 2500);
+      }
+
+      // Manejar errores de rate limiting
+      function handleRateLimitError(response) {
+        // Obtener tiempo de espera del header Retry-After si existe
+        const retryAfter = response.headers.get('Retry-After');
+        const lockoutTime = retryAfter ? parseInt(retryAfter) * 1000 : RATE_LIMIT_LOCKOUT;
+
+        rateLimitedUntil = Date.now() + lockoutTime;
+
+        if (window.Toast) {
+          Toast.show({
+            type: 'warning',
+            title: 'Demasiadas solicitudes',
+            message: `Por favor espera ${Math.ceil(lockoutTime / 1000)} segundos antes de intentar nuevamente`,
+            duration: lockoutTime,
+            dismissible: false
+          });
+        }
+
+        // Disparar evento personalizado para que las páginas puedan reaccionar
+        window.dispatchEvent(new CustomEvent('rateLimitError', {
+          detail: { lockoutTime, retryAfter: rateLimitedUntil }
+        }));
+      }
+
+      // Verificar si está en rate limit
+      function isRateLimited() {
+        return Date.now() < rateLimitedUntil;
+      }
+
+      // Obtener tiempo restante de rate limit
+      function getRateLimitRemaining() {
+        return Math.max(0, rateLimitedUntil - Date.now());
+      }
+
+      // Exponer funciones para uso manual
+      window.handleSessionError = handleSessionError;
+      window.handleRateLimitError = handleRateLimitError;
+      window.isRateLimited = isRateLimited;
+      window.getRateLimitRemaining = getRateLimitRemaining;
+    })();
+  </script>
+
   {{-- Navigation Drawer --}}
   <div class="nav-drawer-overlay" id="navDrawerOverlay"></div>
   <nav class="nav-drawer" id="navDrawer" aria-hidden="true">
