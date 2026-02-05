@@ -59,9 +59,10 @@ async function unlockAudio() {
     }
 }
 
-document.addEventListener("pointerdown", unlockAudio, { once: true });
-/* document.addEventListener("click", unlockAudio, { once: true });
-document.addEventListener("touchstart", unlockAudio, { once: true }); */
+// Solo configurar audio en el dashboard
+if (window.ADMIN_CFG?.page === "dashboard") {
+    document.addEventListener("pointerdown", unlockAudio, { once: true });
+}
 
 // =========================
 // Función segura para reproducir sonido
