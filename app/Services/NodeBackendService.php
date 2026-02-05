@@ -137,7 +137,8 @@ class NodeBackendService
                 'name' => $project->name,
                 'url' => $project->url,
                 'description' => $project->description,
-                'isActive' => $project->is_active,
+                'status' => $project->status,
+                'logoUrl' => $project->logo_url,
                 'action' => $action,
             ]);
 

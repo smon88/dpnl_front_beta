@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Models\User;
 use App\Services\NodeBackendService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ProjectController extends Controller
@@ -57,6 +58,8 @@ class ProjectController extends Controller
             'name' => 'required|string|max:255',
             'url' => 'required|url|max:255',
             'description' => 'nullable|string|max:1000',
+            'status' => 'required|in:active,inactive,maintenance',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
         $slug = Str::slug($validated['name']);
@@ -66,12 +69,19 @@ class ProjectController extends Controller
             $slug = $originalSlug . '-' . $counter++;
         }
 
+        // Procesar logo si se subió
+        $logoPath = null;
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('projects/logos', 'public');
+        }
+
         $project = Project::create([
             'slug' => $slug,
             'name' => $validated['name'],
             'url' => $validated['url'],
             'description' => $validated['description'] ?? null,
-            'is_active' => true,
+            'status' => $validated['status'],
+            'logo_url' => $logoPath,
         ]);
 
         // Sync con Node backend
@@ -125,15 +135,34 @@ class ProjectController extends Controller
             'name' => 'required|string|max:255',
             'url' => 'required|url|max:255',
             'description' => 'nullable|string|max:1000',
-            'is_active' => 'boolean',
+            'status' => 'required|in:active,inactive,maintenance',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'remove_logo' => 'nullable|boolean',
         ]);
 
-        $project->update([
+        $updateData = [
             'name' => $validated['name'],
             'url' => $validated['url'],
             'description' => $validated['description'] ?? null,
-            'is_active' => $request->boolean('is_active', true),
-        ]);
+            'status' => $validated['status'],
+        ];
+
+        // Procesar logo
+        if ($request->hasFile('logo')) {
+            // Eliminar logo anterior si existe
+            if ($project->getRawOriginal('logo_url')) {
+                Storage::disk('public')->delete($project->getRawOriginal('logo_url'));
+            }
+            $updateData['logo_url'] = $request->file('logo')->store('projects/logos', 'public');
+        } elseif ($request->boolean('remove_logo')) {
+            // Eliminar logo si se marcó la opción
+            if ($project->getRawOriginal('logo_url')) {
+                Storage::disk('public')->delete($project->getRawOriginal('logo_url'));
+            }
+            $updateData['logo_url'] = null;
+        }
+
+        $project->update($updateData);
 
         // Sync con Node backend
         $this->nodeBackend->syncProject($project, 'update');
@@ -274,7 +303,7 @@ class ProjectController extends Controller
         $perPage = in_array($perPage, [10, 15, 25, 50]) ? $perPage : 12;
 
         // Proyectos activos donde el usuario NO está
-        $projects = Project::where('is_active', true)
+        $projects = Project::where('status', Project::STATUS_ACTIVE)
             ->whereDoesntHave('users', fn($q) => $q->where('user_id', $user->id))
             ->orderBy('name')
             ->paginate($perPage);

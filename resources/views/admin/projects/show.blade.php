@@ -21,12 +21,23 @@
 
 <div class="projects-detail-layout">
     <div class="sidebar">
-        {{-- Project Info --}}
+        {{-- Project Logo & Info --}}
         <div class="card">
             <div class="card-header">
                 <h5><i class="fas fa-info-circle"></i> Informacion</h5>
             </div>
             <div class="card-body project-info">
+                {{-- Logo --}}
+                <div class="project-logo-display">
+                    @if($project->logo_url)
+                        <img src="{{ $project->logo_url }}" alt="{{ $project->name }}">
+                    @else
+                        <div class="project-logo-placeholder">
+                            <i class="fas fa-project-diagram"></i>
+                        </div>
+                    @endif
+                </div>
+
                 <p><strong>Slug:</strong> <code>{{ $project->slug }}</code></p>
                 <p>
                     <strong>Project ID:</strong>
@@ -49,9 +60,9 @@
                 <p><strong>Descripcion:</strong> {{ $project->description ?? 'Sin descripcion' }}</p>
                 <p>
                     <strong>Estado:</strong>
-                    <span class="badge {{ $project->is_active ? 'badge-success' : 'badge-danger' }}">
-                        <i class="fas {{ $project->is_active ? 'fa-check' : 'fa-times' }}"></i>
-                        {{ $project->is_active ? 'Activo' : 'Inactivo' }}
+                    <span class="badge {{ \App\Models\Project::getStatusBadgeClass($project->status) }}">
+                        <i class="fas {{ \App\Models\Project::getStatusIcon($project->status) }}"></i>
+                        {{ $project->status_label }}
                     </span>
                 </p>
                 <p><strong>Creado:</strong> {{ $project->created_at->format('d/m/Y H:i') }}</p>
@@ -213,6 +224,33 @@
 @push('head')
 <link rel="stylesheet" href="{{ versioned_asset('assets/css/projects.css') }}">
 <style>
+    .project-logo-display {
+        width: 100%;
+        max-width: 160px;
+        aspect-ratio: 1;
+        margin: 0 auto 20px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .project-logo-display img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .project-logo-display .project-logo-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        color: rgba(255, 255, 255, 0.2);
+    }
+
     .project-info code {
         background: rgba(230, 57, 70, 0.15);
         border: 1px solid rgba(230, 57, 70, 0.3);

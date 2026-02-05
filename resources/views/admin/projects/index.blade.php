@@ -19,9 +19,9 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th style="width: 60px;">ID</th>
+                    <th style="width: 60px;"></th>
                     <th>Nombre</th>
-                    <th style="width: 120px;">Estado</th>
+                    <th style="width: 140px;">Estado</th>
                     <th style="width: 140px;">Acciones</th>
                 </tr>
             </thead>
@@ -29,16 +29,24 @@
                 @forelse($projects as $project)
                     <tr>
                         <td>
-                            <span class="project-id">#{{ $project->id }}</span>
+                            <div class="project-logo">
+                                @if($project->logo_url)
+                                    <img src="{{ $project->logo_url }}" alt="{{ $project->name }}">
+                                @else
+                                    <div class="project-logo-placeholder">
+                                        <i class="fas fa-project-diagram"></i>
+                                    </div>
+                                @endif
+                            </div>
                         </td>
                         <td>
                             <strong>{{ $project->name }}</strong>
                             <small class="text-muted">{{ $project->slug }}</small>
                         </td>
                         <td>
-                            <span class="badge {{ $project->is_active ? 'badge-success' : 'badge-danger' }}">
-                                <i class="fas {{ $project->is_active ? 'fa-check' : 'fa-times' }}"></i>
-                                {{ $project->is_active ? 'Activo' : 'Inactivo' }}
+                            <span class="badge {{ \App\Models\Project::getStatusBadgeClass($project->status) }}">
+                                <i class="fas {{ \App\Models\Project::getStatusIcon($project->status) }}"></i>
+                                {{ $project->status_label }}
                             </span>
                         </td>
                         <td class="actions">
@@ -75,11 +83,29 @@
 @push('head')
 <link rel="stylesheet" href="{{ versioned_asset('assets/css/projects.css') }}">
 <style>
-    .project-id {
-        font-family: 'JetBrains Mono', 'Fira Code', monospace;
-        font-size: 12px;
-        color: rgba(255, 255, 255, 0.5);
-        font-weight: 600;
+    .project-logo {
+        width: 44px;
+        height: 44px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .project-logo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .project-logo-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255, 255, 255, 0.3);
+        font-size: 18px;
     }
 </style>
 @endpush

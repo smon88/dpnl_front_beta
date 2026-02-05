@@ -18,11 +18,9 @@
                     <div class="project-card card" data-project-id="{{ $project->id }}">
                         <div class="card-header">
                             <h5><i class="fas fa-project-diagram"></i> {{ $project->name }}</h5>
-                            @if($project->is_active)
-                                <span class="pill success"><i class="fas fa-circle"></i> Activo</span>
-                            @else
-                                <span class="pill error"><i class="fas fa-circle"></i> Inactivo</span>
-                            @endif
+                            <span class="pill {{ $project->status === 'active' ? 'success' : ($project->status === 'maintenance' ? 'warning' : 'error') }}">
+                                <i class="fas fa-circle"></i> {{ $project->status_label }}
+                            </span>
                         </div>
                         <div class="card-body">
                             <div class="project-content">
@@ -365,13 +363,11 @@
 
         // Status pill
         const statusPill = document.getElementById('modalStatusPill');
-        if (project.is_active) {
-            statusPill.className = 'pill success';
-            statusPill.innerHTML = '<i class="fas fa-circle" style="font-size:6px;margin-right:5px;"></i> Activo';
-        } else {
-            statusPill.className = 'pill error';
-            statusPill.innerHTML = '<i class="fas fa-circle" style="font-size:6px;margin-right:5px;"></i> Inactivo';
-        }
+        const statusLabels = { active: 'Activo', inactive: 'Inactivo', maintenance: 'Mantenimiento' };
+        const statusClasses = { active: 'success', inactive: 'error', maintenance: 'warning' };
+        const status = project.status || 'active';
+        statusPill.className = `pill ${statusClasses[status] || 'secondary'}`;
+        statusPill.innerHTML = `<i class="fas fa-circle" style="font-size:6px;margin-right:5px;"></i> ${statusLabels[status] || status}`;
 
         // Logo
         const logoContainer = document.getElementById('modalProjectLogo');

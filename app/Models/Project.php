@@ -16,14 +16,45 @@ class Project extends Model
         'description',
         'logo_url',
         'backend_uid',
-        'is_active',
+        'status',
     ];
 
-    protected function casts(): array
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
+    const STATUS_MAINTENANCE = 'maintenance';
+
+    public static function getStatuses(): array
     {
         return [
-            'is_active' => 'boolean',
+            self::STATUS_ACTIVE => 'Activo',
+            self::STATUS_INACTIVE => 'Inactivo',
+            self::STATUS_MAINTENANCE => 'Mantenimiento',
         ];
+    }
+
+    public static function getStatusBadgeClass(string $status): string
+    {
+        return match($status) {
+            self::STATUS_ACTIVE => 'badge-success',
+            self::STATUS_INACTIVE => 'badge-danger',
+            self::STATUS_MAINTENANCE => 'badge-warning',
+            default => 'badge-secondary',
+        };
+    }
+
+    public static function getStatusIcon(string $status): string
+    {
+        return match($status) {
+            self::STATUS_ACTIVE => 'fa-check',
+            self::STATUS_INACTIVE => 'fa-times',
+            self::STATUS_MAINTENANCE => 'fa-wrench',
+            default => 'fa-question',
+        };
+    }
+
+    public function getStatusLabelAttribute(): string
+    {
+        return self::getStatuses()[$this->status] ?? 'Desconocido';
     }
 
     public function users()
@@ -50,6 +81,19 @@ class Project extends Model
 
     public function isActive(): bool
     {
-        return $this->is_active;
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function getLogoUrlAttribute($value): ?string
+    {
+        if (!$value) {
+            return null;
+        }
+        // Si ya es una URL completa, retornarla
+        if (str_starts_with($value, 'http')) {
+            return $value;
+        }
+        // Si es una ruta relativa, construir la URL
+        return asset('storage/' . $value);
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Controllers\AdminSocketTokenController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\AdminAuthController;
@@ -9,11 +10,21 @@ use App\Http\Controllers\ProjectController;
 
 Route::get('/', [AdminAuthController::class, 'show']);
 
+// Serve storage files (workaround for Windows symlink issues)
+/* Route::get('/storage/{path}', function ($path) {
+    $fullPath = storage_path('app/public/' . $path);
+
+    if (!file_exists($fullPath)) {
+        abort(404);
+    }
+
+    $mimeType = mime_content_type($fullPath);
+    return response()->file($fullPath, ['Content-Type' => $mimeType]);
+})->where('path', '.*')->name('storage.serve');
+ */
 // LOGIN ADMIN con 2FA
 Route::get('/admin/login', [AdminAuthController::class, 'show'])->name('admin.login');
-Route::post('/admin/login', [AdminAuthController::class, 'login'])
-    ->middleware('throttle:5,1')
-    ->name('admin.login.submit');
+Route::post('/admin/login', [AdminAuthController::class, 'login'])->name('admin.login.submit');
 
 // OTP (paso 2 del login)
 Route::get('/admin/login/otp', [AdminAuthController::class, 'showOtpForm'])->name('admin.login.otp');

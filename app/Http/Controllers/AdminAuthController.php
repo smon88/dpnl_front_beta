@@ -37,9 +37,26 @@ class AdminAuthController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
+        // Rate limiting manual (5 intentos por minuto por IP)
+        $rateLimitKey = 'login:' . $request->ip();
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
+            Log::warning('Login rate limited', [
+                'ip' => $request->ip(),
+                'seconds_remaining' => $seconds,
+            ]);
+
+            return back()->withErrors([
+                'username' => "Demasiados intentos. Espera {$seconds} segundos.",
+            ])->withInput($request->only('username'));
+        }
+
         $user = User::where('username', $request->username)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            // Incrementar contador solo en intentos fallidos
+            RateLimiter::hit($rateLimitKey, 60);
+
             return back()->withErrors([
                 'username' => 'Credenciales incorrectas.',
             ])->withInput($request->only('username'));

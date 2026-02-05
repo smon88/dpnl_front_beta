@@ -54,7 +54,7 @@
 
                 @if ($errors->any())
                     @foreach ($errors->all() as $error)
-                        <div class="alert alert-error">
+                        <div class="alert alert-error" data-error-message="{{ $error }}">
                             <div class="alert-content">
                                 @if(str_contains($error, 'Telegram'))
                                     <i class="fab fa-telegram alert-icon"></i>
@@ -62,7 +62,7 @@
                                     <i class="fas fa-user-slash alert-icon"></i>
                                 @elseif(str_contains($error, 'Credenciales'))
                                     <i class="fas fa-key alert-icon"></i>
-                                @elseif(str_contains($error, 'expirada'))
+                                @elseif(str_contains($error, 'expirada') || str_contains($error, 'Espera'))
                                     <i class="fas fa-clock alert-icon"></i>
                                 @else
                                     <i class="fas fa-exclamation-circle alert-icon"></i>
@@ -160,6 +160,61 @@
             function dismissAlert(alert) {
                 alert.style.animation = 'alertSlideOut 0.3s ease-in forwards';
                 setTimeout(() => alert.remove(), 300);
+            }
+        })();
+
+        // Rate limit timeout handling
+        (function() {
+            const errorAlerts = document.querySelectorAll('.login-alerts .alert-error');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.querySelector('.login-btn');
+
+            errorAlerts.forEach(alert => {
+                const message = alert.dataset.errorMessage || '';
+                // Buscar "Espera X segundos" en el mensaje
+                const match = message.match(/Espera (\d+) segundos/);
+                if (match) {
+                    let seconds = parseInt(match[1]);
+                    lockFormForTimeout(seconds, alert);
+                }
+            });
+
+            function lockFormForTimeout(seconds, alert) {
+                usernameInput.disabled = true;
+                passwordInput.disabled = true;
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+
+                const alertMessage = alert.querySelector('.alert-message');
+                const originalMessage = alertMessage.textContent;
+
+                const countdown = setInterval(() => {
+                    alertMessage.textContent = `Demasiados intentos. Espera ${seconds} segundos.`;
+                    seconds--;
+
+                    if (seconds < 0) {
+                        clearInterval(countdown);
+                        usernameInput.disabled = false;
+                        passwordInput.disabled = false;
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                        submitBtn.style.cursor = '';
+
+                        // Cambiar alerta a info
+                        alert.classList.remove('alert-error');
+                        alert.classList.add('alert-info');
+                        alert.querySelector('.alert-icon').className = 'fas fa-check-circle alert-icon';
+                        alertMessage.textContent = 'Ya puedes intentar nuevamente.';
+
+                        // Auto-dismiss después de 3 segundos
+                        setTimeout(() => {
+                            alert.style.animation = 'alertSlideOut 0.3s ease-in forwards';
+                            setTimeout(() => alert.remove(), 300);
+                        }, 3000);
+                    }
+                }, 1000);
             }
         })();
     </script>
