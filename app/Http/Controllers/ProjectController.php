@@ -58,7 +58,7 @@ class ProjectController extends Controller
             'name' => 'required|string|max:255',
             'url' => 'required|url|max:255',
             'description' => 'nullable|string|max:1000',
-            'status' => 'required|in:ACTIVE,INACTIVE,MAINTENANCE',
+            'status' => 'required|in:active,inactive,maintenance',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
@@ -80,7 +80,7 @@ class ProjectController extends Controller
             'name' => $validated['name'],
             'url' => $validated['url'],
             'description' => $validated['description'] ?? null,
-            'status' => $validated['status'],
+            'status' => strtoupper($validated['status']),
             'logo_url' => $logoPath,
         ]);
 
@@ -144,7 +144,7 @@ class ProjectController extends Controller
             'name' => $validated['name'],
             'url' => $validated['url'],
             'description' => $validated['description'] ?? null,
-            'status' => $validated['status'],
+            'status' => strtoupper($validated['status']),
         ];
 
         // Procesar logo
