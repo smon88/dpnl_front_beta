@@ -26,9 +26,9 @@ class Project extends Model
     public static function getStatuses(): array
     {
         return [
-            self::STATUS_ACTIVE => 'Activo',
-            self::STATUS_INACTIVE => 'Inactivo',
-            self::STATUS_MAINTENANCE => 'Mantenimiento',
+            "ACTIVE" => 'Activo',
+            "INACTIVE" => 'Inactivo',
+            "MAINTENANCE" => 'Mantenimiento',
         ];
     }
 
