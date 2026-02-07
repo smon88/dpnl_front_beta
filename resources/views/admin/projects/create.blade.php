@@ -77,7 +77,7 @@
                 </label>
                 <select name="status" id="status" class="form-control @error('status') is-invalid @enderror" required>
                     @foreach(\App\Models\Project::getStatuses() as $value => $label)
-                        <option value="{{ $value }}" {{ old('status', 'ACTIVE') === $value ? 'selected' : '' }}>
+                        <option value="{{ $value }}" {{ old('status', 'active') === $value ? 'selected' : '' }}>
                             {{ $label }}
                         </option>
                     @endforeach
