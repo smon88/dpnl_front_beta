@@ -58,7 +58,7 @@ class ProjectController extends Controller
             'name' => 'required|string|max:255',
             'url' => 'required|url|max:255',
             'description' => 'nullable|string|max:1000',
-            'status' => 'required|in:active,inactive,maintenance',
+            'status' => 'required|in:ACTIVE,INACTIVE,MAINTENANCE',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
         ]);
 
@@ -135,7 +135,7 @@ class ProjectController extends Controller
             'name' => 'required|string|max:255',
             'url' => 'required|url|max:255',
             'description' => 'nullable|string|max:1000',
-            'status' => 'required|in:active,inactive,maintenance',
+            'status' => 'required|in:ACTIVE,INACTIVE,MAINTENANCE',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'remove_logo' => 'nullable|boolean',
         ]);
@@ -303,7 +303,7 @@ class ProjectController extends Controller
         $perPage = in_array($perPage, [10, 15, 25, 50]) ? $perPage : 12;
 
         // Proyectos activos donde el usuario NO está
-        $projects = Project::where('status', Project::STATUS_ACTIVE)
+        $projects = Project::where('status',  "ACTIVE")
             ->whereDoesntHave('users', fn($q) => $q->where('user_id', $user->id))
             ->orderBy('name')
             ->paginate($perPage);

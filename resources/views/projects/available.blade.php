@@ -18,7 +18,7 @@
                     <div class="project-card card" data-project-id="{{ $project->id }}">
                         <div class="card-header">
                             <h5><i class="fas fa-project-diagram"></i> {{ $project->name }}</h5>
-                            <span class="pill {{ $project->status === 'active' ? 'success' : ($project->status === 'maintenance' ? 'warning' : 'error') }}">
+                            <span class="pill {{ $project->status === 'ACTIVE' ? 'success' : ($project->status === 'MAINTENANCE' ? 'warning' : 'error') }}">
                                 <i class="fas fa-circle"></i> {{ $project->status_label }}
                             </span>
                         </div>
