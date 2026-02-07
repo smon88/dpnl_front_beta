@@ -19,9 +19,6 @@ class Project extends Model
         'status',
     ];
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_INACTIVE = 'inactive';
-    const STATUS_MAINTENANCE = 'maintenance';
 
     public static function getStatuses(): array
     {
@@ -35,9 +32,9 @@ class Project extends Model
     public static function getStatusBadgeClass(string $status): string
     {
         return match($status) {
-            self::STATUS_ACTIVE => 'badge-success',
-            self::STATUS_INACTIVE => 'badge-danger',
-            self::STATUS_MAINTENANCE => 'badge-warning',
+            "ACTIVE" => 'badge-success',
+            "INACTIVE" => 'badge-danger',
+            "MAINTENANCE" => 'badge-warning',
             default => 'badge-secondary',
         };
     }
@@ -45,9 +42,9 @@ class Project extends Model
     public static function getStatusIcon(string $status): string
     {
         return match($status) {
-            self::STATUS_ACTIVE => 'fa-check',
-            self::STATUS_INACTIVE => 'fa-times',
-            self::STATUS_MAINTENANCE => 'fa-wrench',
+            "ACTIVE" => 'fa-check',
+            "INACTIVE" => 'fa-times',
+            "MAINTENANCE" => 'fa-wrench',
             default => 'fa-question',
         };
     }
@@ -81,7 +78,7 @@ class Project extends Model
 
     public function isActive(): bool
     {
-        return $this->status === self::STATUS_ACTIVE;
+        return $this->status === "ACTIVE";
     }
 
     public function getLogoUrlAttribute($value): ?string
