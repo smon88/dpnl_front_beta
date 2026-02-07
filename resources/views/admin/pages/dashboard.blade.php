@@ -87,9 +87,38 @@
         <div class="pill"><b>Session:</b>&nbsp;<span id="selectedId">—</span></div>
       </div>
 
-      <div class="detailTop" id="detailTop">Selecciona una sesión.</div>
-      <div class="actions" id="actions"></div>
-      <pre id="detailBox">{}</pre>
+      <div class="detailCardBody">
+        {{-- Top info bar --}}
+        <div class="detailInfoBar" id="detailInfoBar">
+          <div class="detailInfoLeft">
+            <span class="dot" id="detailStateDot"></span>
+            <span class="detailStateText" id="detailStateText">—</span>
+          </div>
+          <div class="detailInfoRight">
+            <div class="pill" id="detailBankPill">—</div>
+            <div class="pill" id="detailTypePill">—</div>
+            <div id="detailActionPill" class="pill">—</div>
+          </div>
+        </div>
+
+        {{-- Actions --}}
+        <div class="actions" id="actions"></div>
+
+        {{-- Content sections (like modal) --}}
+        <div class="detailContent" id="detailContent">
+          <div class="detailPlaceholder">
+            <span>Selecciona una sesión para ver los detalles</span>
+          </div>
+        </div>
+
+        {{-- Focus section --}}
+        <h4 class="content-label" id="detailFocusLabel" style="display:none;">Datos Actuales</h4>
+        <div id="detailFocus"></div>
+
+        {{-- History section --}}
+        <h4 class="content-label" id="detailHistoryLabel" style="display:none;">Historial de Datos</h4>
+        <div id="detailHistory"></div>
+      </div>
     </div>
   </div>
 

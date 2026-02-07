@@ -19,9 +19,9 @@ class Project extends Model
         'status',
     ];
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_INACTIVE = 'inactive';
-    const STATUS_MAINTENANCE = 'maintenance';
+    const STATUS_ACTIVE = 'ACTIVE';
+    const STATUS_INACTIVE = 'INACTIVE';
+    const STATUS_MAINTENANCE = 'MAINTENANCE';
 
     public static function getStatuses(): array
     {
